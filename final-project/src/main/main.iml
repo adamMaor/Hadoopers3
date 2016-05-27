@@ -8,5 +8,6 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Maven: org.apache.spark:spark-core_2.10:1.6.1" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.spark:spark-launcher_2.10:1.6.1" level="project" />
   </component>
 </module>

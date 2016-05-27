@@ -46,6 +46,7 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
-#intellij project folder
 .idea/
 final-project/target/
+.vagrant/
+final-project/resources/spark-1.6.1-bin-hadoop2.6/
