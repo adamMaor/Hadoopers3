@@ -16,7 +16,11 @@
   </properties>
 
   <dependencies>
-    <!-- YOU NEED TO ADD SPARK RELATED DEPENDENCIES HERE -->
+    <dependency>
+      <groupId>org.apache.spark</groupId>
+      <artifactId>spark-core_2.10</artifactId>
+      <version>1.6.1</version>
+    </dependency>
   </dependencies>
 
   <build>
