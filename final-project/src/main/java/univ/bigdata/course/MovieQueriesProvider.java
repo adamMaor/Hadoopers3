@@ -1,14 +1,21 @@
 package univ.bigdata.course;
 
 import univ.bigdata.course.movie.Movie;
+import org.apache.spark.api.java.JavaSparkContext;
+import org.apache.spark.api.java.JavaRDD;
+import org.apache.spark.SparkConf;
+import univ.bigdata.course.movie.MovieReview;
 
 public class MovieQueriesProvider {
-
+    JavaRDD<MovieReview> movieReviews;
     /**
-     * Constructor method, recieving RDD of lines
+     * Constructor method
      */
-    MovieQueriesProvider() {
-
+    MovieQueriesProvider(String inputFile) {
+        SparkConf conf = new SparkConf().setAppName("hw3").setMaster("local");
+        JavaSparkContext sc = new JavaSparkContext(conf);
+        JavaRDD<String> fileLines = sc.textFile("/home/vagrant/final-project/resources/" + inputFile);
+        movieReviews = fileLines.map(MovieReview::new);
     }
 
     /**
@@ -134,6 +141,7 @@ public class MovieQueriesProvider {
      * Total movies count
      */
     String moviesCount() {
-        return null;
+        JavaRDD<String> distinctMovies = movieReviews.map(s->s.getMovie().getProductId()).distinct();
+        return "Total number of distinct movies reviewed [" + distinctMovies.count() + "].";
     }
 }

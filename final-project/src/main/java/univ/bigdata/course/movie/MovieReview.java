@@ -28,14 +28,20 @@ public class MovieReview {
     public MovieReview() {
     }
 
-    public MovieReview(Movie movie, String userId, String profileName, String helpfulness, Date timestamp, String summary, String review) {
+    public MovieReview(String review) {
+        String[] reviewParamsList = review.split("\\t");
+        for (int i = 0; i < reviewParamsList.length; i++){
+            reviewParamsList[i] = reviewParamsList[i].substring(reviewParamsList[i].indexOf(":") + 2);
+        }
+        Movie movie = new Movie(reviewParamsList[0], Double.parseDouble(reviewParamsList[4]));
+        Date movieDate = new Date(Long.parseLong(reviewParamsList[5]));
         this.movie = movie;
-        this.userId = userId;
-        this.profileName = profileName;
-        this.helpfulness = helpfulness;
-        this.timestamp = timestamp;
-        this.summary = summary;
-        this.review = review;
+        this.userId = reviewParamsList[1];
+        this.profileName = reviewParamsList[2];
+        this.helpfulness =reviewParamsList[3];
+        this.timestamp = movieDate;
+        this.summary = reviewParamsList[6];
+        this.review = reviewParamsList[7];
     }
 
     public String getUserId() {

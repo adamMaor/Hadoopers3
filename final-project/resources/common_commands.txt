@@ -1,5 +1,0 @@
-spark-submit \
-  --class univ.bigdata.course.MainRunner \
-  --master local[*] \
-  --deploy-mode client \
-  C:\GitHub\Hadoopers3\final-project\target\final-project-1.0-SNAPSHOT.jar
