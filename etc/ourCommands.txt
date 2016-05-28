@@ -4,3 +4,4 @@ spark-submit \
   --deploy-mode client \
   C:\GitHub\Hadoopers3\final-project\target\final-project-1.0-SNAPSHOT.jar
 
+~/final-project/resources/spark-1.6.1-bin-hadoop2.6/bin/spark-submit --class univ.bigdata.course.MainRunner --master local[2] --deploy-mode client /home/vagrant/final-project/target/final-project-1.0-SNAPSHOT.jar commands test_commands.txt
