@@ -43,13 +43,13 @@ public class MainRunner {
     private static void executeCommand(MovieQueriesProvider provider, PrintStream printer, String command) {
         String[] commandSplitted = command.split(" ");
         // function name is the first word, following words are parameters
-        printer.println(commandSplitted[0]);
+        printer.println(command);
         switch (commandSplitted[0]) {
             case "totalMoviesAverageScore":
-                printer.println(provider.totalMoviesAverageScore());
+                printer.println("Total average: " + provider.totalMoviesAverageScore());
                 break;
             case "totalMovieAverage":
-                printer.println(provider.totalMovieAverage(commandSplitted[1]));
+                printer.println("Total average for movie '" + commandSplitted[1] + "': " + provider.totalMovieAverage(commandSplitted[1]));
                 break;
             case "getTopKMoviesAverage":
                 printer.println(provider.getTopKMoviesAverage(Long.valueOf(commandSplitted[1])));
@@ -76,7 +76,7 @@ public class MainRunner {
                 printer.println(provider.topKHelpfullUsers(Integer.parseInt(commandSplitted[1])));
                 break;
             case "moviesCount":
-                printer.println(provider.moviesCount());
+                printer.println("Total number of distinct movies reviewed [" + provider.moviesCount()  + "].");
                 break;
             default:
                 throw new RuntimeException("command not found " + commandSplitted[0]);

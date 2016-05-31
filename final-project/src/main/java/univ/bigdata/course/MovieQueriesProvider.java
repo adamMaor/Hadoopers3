@@ -1,6 +1,5 @@
 package univ.bigdata.course;
 
-import org.apache.spark.api.java.JavaDoubleRDD;
 import scala.Tuple2;
 import univ.bigdata.course.movie.Movie;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -26,19 +25,20 @@ public class MovieQueriesProvider {
     /**
      * Method which calculates total scores average for all movies.
      **/
-    String totalMoviesAverageScore() {
-        JavaDoubleRDD movieScores = movieReviews.mapToDouble(s -> s.getMovie().getScore());
-        return "Total average: " + roundFiveDecimal(movieScores.sum()/movieScores.count());
+    double totalMoviesAverageScore() {
+        return totalMovieAverage("");
     }
 
     /**
      * For given movies calculates an average score of this movie.
      *
      * @param productId - id of the movie to calculate the average score.
-     * @return - movie's average
      */
-    String totalMovieAverage(final String productId) {
-        return null;
+    double totalMovieAverage(final String productId) {
+        JavaRDD<MovieReview> filteredMovieReviews = movieReviews.filter(s -> s.getMovie().getProductId().contains(productId));
+        JavaRDD<Double> movieScores = filteredMovieReviews.map(s -> s.getMovie().getScore());
+        double sum = movieScores.reduce((a,b) -> a+b);
+        return roundFiveDecimal(sum/movieScores.count());
     }
 
     /**
@@ -88,6 +88,7 @@ public class MovieQueriesProvider {
      * @return - movies list
      */
     String getMoviesPercentile(final double percent) {
+        int numOfMoviesToReturn = (int)Math.ceil((((100 -  percent) / 100) * movieReviews.count()));
         return null;
     }
 
@@ -157,9 +158,9 @@ public class MovieQueriesProvider {
     /**
      * Total movies count
      */
-    String moviesCount() {
+    double moviesCount() {
         JavaRDD<String> distinctMovies = movieReviews.map(s->s.getMovie().getProductId()).distinct();
-        return "Total number of distinct movies reviewed [" + distinctMovies.count() + "].";
+        return distinctMovies.count();
     }
 
     /**
