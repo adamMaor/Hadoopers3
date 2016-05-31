@@ -1,12 +1,15 @@
 package univ.bigdata.course;
 
 import org.apache.spark.api.java.JavaDoubleRDD;
-import scala.Double;
+import scala.Tuple2;
 import univ.bigdata.course.movie.Movie;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.SparkConf;
 import univ.bigdata.course.movie.MovieReview;
+
+import java.util.Comparator;
+import java.util.List;
 
 public class MovieQueriesProvider {
     JavaRDD<MovieReview> movieReviews;
@@ -45,11 +48,24 @@ public class MovieQueriesProvider {
      * with highest average should be returned
      *
      * @param topK - number of top movies to return
-     * @return - list of movies where each @{@link Movie} includes it's average
      */
-    String getTopKMoviesAverage(final long topK) {
-        return null;
+    List<Tuple2<String, Double>> getTopKMoviesAverage(int topK) {
+        return movieReviews
+                .mapToPair(s-> new Tuple2<>(s.getMovie().getProductId(), new Tuple2<>(s.getMovie().getScore(), 1)))
+                .reduceByKey((a, b)-> new Tuple2<>(a._1 + b._1, a._2 + b._2))
+                .mapToPair(s -> new Tuple2<>(new Tuple2<>(s._1, roundFiveDecimal(s._2._1 / s._2._2)), null))
+                .sortByKey(tupleStringDoubleComparator, true)
+                .mapToPair(Tuple2::_1)
+                .take(topK);
     }
+
+    private static Comparator<Tuple2<String, Double>> tupleStringDoubleComparator = (o1, o2) -> {
+        if (o1._2().equals(o2._2())) {
+            return o1._1().compareTo(o2._1());
+        } else {
+            return o1._2().compareTo(o2._2()) * -1;
+        }
+    };
 
     /**
      * Finds movie with the highest average score among all available movies.
