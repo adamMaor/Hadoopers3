@@ -1,9 +1,12 @@
 package univ.bigdata.course;
 
+import univ.bigdata.course.movie.Movie;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Scanner;
 
 public class MainRunner {
@@ -58,10 +61,14 @@ public class MainRunner {
                 printer.println(provider.movieWithHighestAverage());
                 break;
             case "mostReviewedProduct":
-                printer.println(provider.mostReviewedProduct());
+                printer.println("The most reviewed movie product id is " + provider.mostReviewedProduct());
                 break;
             case "reviewCountPerMovieTopKMovies":
-                printer.println(provider.reviewCountPerMovieTopKMovies(Integer.parseInt(commandSplitted[1])));
+                List<Movie> movies = provider.reviewCountPerMovieTopKMovies(Integer.parseInt(commandSplitted[1]));
+                for (Movie movie : movies) {
+                    printer.println("Movie product id = [" + movie.getProductId()+ "], reviews count [" + movie.getScore() + "].");
+                }
+                ;
                 break;
             case "mostPopularMovieReviewedByKUsers":
                 printer.println(provider.mostPopularMovieReviewedByKUsers(Integer.parseInt(commandSplitted[1])));

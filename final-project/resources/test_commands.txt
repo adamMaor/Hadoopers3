@@ -3,3 +3,5 @@ test_queries_out.txt
 moviesCount
 totalMoviesAverageScore
 totalMovieAverage B00004CK40
+reviewCountPerMovieTopKMovies 4
+mostReviewedProduct

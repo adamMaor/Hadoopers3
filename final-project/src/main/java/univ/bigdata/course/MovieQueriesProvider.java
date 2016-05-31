@@ -1,10 +1,14 @@
 package univ.bigdata.course;
 
+import org.apache.spark.api.java.JavaPairRDD;
+import scala.Tuple2;
 import univ.bigdata.course.movie.Movie;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.SparkConf;
 import univ.bigdata.course.movie.MovieReview;
+
+import java.util.List;
 
 public class MovieQueriesProvider {
     JavaRDD<MovieReview> movieReviews;
@@ -62,24 +66,14 @@ public class MovieQueriesProvider {
     }
 
     /**
-     * Returns a list of movies which has average of given percentile.
-     * List should be sorted according the average score of movie and in case there
-     * are more than one movie with same average score, sort by product id
-     * lexicographically in natural order.
-     *
-     * @param percent - the percentile, value in range between [0..100]
-     * @return - movies list
-     */
-    String getMoviesPercentile(final double percent) {
-        int numOfMoviesToReturn = (int)Math.ceil((((100 -  percent) / 100) * movieReviews.count()));
-        return null;
-    }
-
-    /**
      * @return - the product id of most reviewed movie among all movies
      */
     String mostReviewedProduct() {
-        return null;
+        List<Movie> list = reviewCountPerMovieTopKMovies(1);
+        if (list.isEmpty()){
+            return "";
+        }
+        return list.get(0).getProductId();
     }
 
     /**
@@ -89,8 +83,15 @@ public class MovieQueriesProvider {
      *
      * @return - returns map with movies product id and the count of over all reviews assigned to it.
      */
-    String reviewCountPerMovieTopKMovies(final int topK) {
-        return null;
+    List<Movie> reviewCountPerMovieTopKMovies(final int topK) {
+        JavaPairRDD<Movie, Integer> pairs = movieReviews.mapToPair(s -> new Tuple2<>(s.getMovie(), 1));
+        JavaPairRDD<Movie, Integer> counts = pairs.reduceByKey((a, b) -> a + b);
+        JavaPairRDD<Movie, Integer> fixedMovies =
+                counts.mapToPair(s -> new Tuple2<>(new Movie(s._1().getProductId(), (double)s._2()), s._2())).sortByKey();
+        JavaRDD<Movie> resRDD = fixedMovies.keys();
+        // TODO - sort by value, and then by key
+        int numToTake = topK > (int)counts.count() ? (int)counts.count() : topK;
+        return resRDD.take(numToTake);
     }
 
     /**
