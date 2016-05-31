@@ -21,10 +21,8 @@ public class MovieQueriesProvider {
     /**
      * Method which calculates total scores average for all movies.
      **/
-    String totalMoviesAverageScore() {
-        JavaRDD<Double> movieScores = movieReviews.map(s -> s.getMovie().getScore());
-        double sum = movieScores.reduce((a,b) -> a+b);
-        return "Total average: " + roundFiveDecimal(sum/movieScores.count());
+    double totalMoviesAverageScore() {
+        return totalMovieAverage("");
     }
 
     /**
@@ -32,11 +30,11 @@ public class MovieQueriesProvider {
      *
      * @param productId - id of the movie to calculate the average score.
      */
-    String totalMovieAverage(final String productId) {
+    double totalMovieAverage(final String productId) {
         JavaRDD<MovieReview> filteredMovieReviews = movieReviews.filter(s -> s.getMovie().getProductId().contains(productId));
         JavaRDD<Double> movieScores = filteredMovieReviews.map(s -> s.getMovie().getScore());
         double sum = movieScores.reduce((a,b) -> a+b);
-        return "Total average for movie '" + productId + "': " + roundFiveDecimal(sum/movieScores.count());
+        return roundFiveDecimal(sum/movieScores.count());
     }
 
     /**
@@ -73,6 +71,7 @@ public class MovieQueriesProvider {
      * @return - movies list
      */
     String getMoviesPercentile(final double percent) {
+        int numOfMoviesToReturn = (int)Math.ceil((((100 -  percent) / 100) * movieReviews.count()));
         return null;
     }
 
@@ -142,9 +141,9 @@ public class MovieQueriesProvider {
     /**
      * Total movies count
      */
-    String moviesCount() {
+    double moviesCount() {
         JavaRDD<String> distinctMovies = movieReviews.map(s->s.getMovie().getProductId()).distinct();
-        return "Total number of distinct movies reviewed [" + distinctMovies.count() + "].";
+        return distinctMovies.count();
     }
 
     /**
