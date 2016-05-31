@@ -52,7 +52,7 @@ public class MainRunner {
                 printer.println(provider.totalMovieAverage(commandSplitted[1]));
                 break;
             case "getTopKMoviesAverage":
-                printer.println(provider.getTopKMoviesAverage(Long.valueOf(commandSplitted[1]).longValue()));
+                printer.println(provider.getTopKMoviesAverage(Long.valueOf(commandSplitted[1])));
                 break;
             case "movieWithHighestAverage":
                 printer.println(provider.movieWithHighestAverage());
