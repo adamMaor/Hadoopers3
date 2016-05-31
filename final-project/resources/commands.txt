@@ -1,7 +1,7 @@
 movies-simple.txt
 queries_out.txt
 getTopKMoviesAverage 2
-getTopKMoviesAverage 2
+getTopKMoviesAverage 4
 totalMoviesAverageScore
 movieWithHighestAverage
 reviewCountPerMovieTopKMovies 4

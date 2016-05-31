@@ -3,3 +3,6 @@ test_queries_out.txt
 moviesCount
 totalMoviesAverageScore
 totalMovieAverage B00004CK40
+getTopKMoviesAverage 2
+getTopKMoviesAverage 4
+movieWithHighestAverage

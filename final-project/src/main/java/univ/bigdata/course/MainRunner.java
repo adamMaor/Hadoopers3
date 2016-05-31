@@ -1,4 +1,14 @@
+/**
+ * Submitters information - Hadoopers team:
+ * Vadim Khakham 	vadim.khakham@gmail.com	311890156
+ * Michel Guralnik mikijoy@gmail.com 	306555822
+ * Gilad Eini 	giladeini@gmail.com	034744920
+ * Adam Maor 	maorcpa.adam@gmail.com	036930501
+ */
+
 package univ.bigdata.course;
+
+import univ.bigdata.course.movie.Movie;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -52,10 +62,11 @@ public class MainRunner {
                 printer.println("Total average for movie '" + commandSplitted[1] + "': " + provider.totalMovieAverage(commandSplitted[1]));
                 break;
             case "getTopKMoviesAverage":
-                printer.println(provider.getTopKMoviesAverage(Long.valueOf(commandSplitted[1])));
+                provider.getTopKMoviesAverage(Integer.valueOf(commandSplitted[1])).forEach(printer::println);
                 break;
             case "movieWithHighestAverage":
-                printer.println(provider.movieWithHighestAverage());
+                Movie highestAvg = provider.movieWithHighestAverage();
+                printer.println("The movie with highest average: " + highestAvg);
                 break;
             case "mostReviewedProduct":
                 printer.println(provider.mostReviewedProduct());
@@ -70,7 +81,8 @@ public class MainRunner {
                 printer.println(provider.moviesReviewWordsCount(Integer.parseInt(commandSplitted[1])));
                 break;
             case "topYMoviesReviewTopXWordsCount":
-                printer.println(provider.topYMoviesReviewTopXWordsCount(Integer.parseInt(commandSplitted[1]), Integer.parseInt(commandSplitted[2])));
+                printer.println(provider.topYMoviesReviewTopXWordsCount(Integer.parseInt(commandSplitted[1]),
+                        Integer.parseInt(commandSplitted[2])));
                 break;
             case "topKHelpfullUsers":
                 printer.println(provider.topKHelpfullUsers(Integer.parseInt(commandSplitted[1])));
