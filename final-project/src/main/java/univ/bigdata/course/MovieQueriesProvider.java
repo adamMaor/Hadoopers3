@@ -122,7 +122,7 @@ public class MovieQueriesProvider {
      * @param topWords - number of top words to return
      * @return - map of words to count, ordered by count in decreasing order.
      */
-    String topYMoviewsReviewTopXWordsCount(final int topMovies, final int topWords) {
+    String topYMoviesReviewTopXWordsCount(final int topMovies, final int topWords) {
         return null;
     }
 
