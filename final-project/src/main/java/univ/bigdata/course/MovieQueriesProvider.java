@@ -115,8 +115,8 @@ public class MovieQueriesProvider implements Serializable{
         return movieReviews
                 .mapToPair(s -> new Tuple2<>(s.getMovie().getProductId(), 1))
                 .reduceByKey((a, b) -> a + b)
-                .mapToPair(s -> new Tuple2<>(new Movie(s._1(), (double)s._2()), s._2()))
-                .keys().top(getRealTopK(topK));
+                .map(s -> new Movie(s._1(), (double)s._2()))
+                .top(getRealTopK(topK));
     }
 
     /**
