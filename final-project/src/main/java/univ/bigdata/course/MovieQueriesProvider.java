@@ -63,12 +63,11 @@ public class MovieQueriesProvider implements Serializable{
      * @param topK - number of top movies to return
      */
     List<Movie> getTopKMoviesAverage(int topK) {
-        int moviesNum = toIntExact(moviesCount());
         return movieReviews
                 .mapToPair(s-> new Tuple2<>(s.getMovie().getProductId(), new Tuple2<>(s.getMovie().getScore(), 1)))
                 .reduceByKey((a, b)-> new Tuple2<>(a._1 + b._1, a._2 + b._2))
                 .map(s -> new Movie(s._1, roundFiveDecimal(s._2._1 / s._2._2)))
-                .top(topK > moviesNum ? moviesNum : topK);
+                .top(getRealTopK(topK));
     }
 
     class StringDoubleTupleComparator implements Comparator<Tuple2<String, Double>>, Serializable {
@@ -99,7 +98,7 @@ public class MovieQueriesProvider implements Serializable{
     String mostReviewedProduct() {
         List<Movie> list = reviewCountPerMovieTopKMovies(1);
         if (list.isEmpty()){
-            return "";
+            return "No Movies Found !!!";
         }
         return list.get(0).getProductId();
     }
@@ -112,14 +111,12 @@ public class MovieQueriesProvider implements Serializable{
      * @return - returns map with movies product id and the count of over all reviews assigned to it.
      */
     List<Movie> reviewCountPerMovieTopKMovies(final int topK) {
-        JavaPairRDD<Movie, Integer> pairs = movieReviews.mapToPair(s -> new Tuple2<>(s.getMovie(), 1));
-        JavaPairRDD<Movie, Integer> counts = pairs.reduceByKey((a, b) -> a + b);
-        JavaPairRDD<Movie, Integer> fixedMovies =
-                counts.mapToPair(s -> new Tuple2<>(new Movie(s._1().getProductId(), (double)s._2()), s._2())).sortByKey();
-        JavaRDD<Movie> resRDD = fixedMovies.keys();
-        // TODO - sort by value, and then by key
-        int numToTake = topK > (int)counts.count() ? (int)counts.count() : topK;
-        return resRDD.take(numToTake);
+        // we will "trick" movie to have the count instead of the score in order to use it's comperator
+        return movieReviews
+                .mapToPair(s -> new Tuple2<>(s.getMovie().getProductId(), 1))
+                .reduceByKey((a, b) -> a + b)
+                .mapToPair(s -> new Tuple2<>(new Movie(s._1(), (double)s._2()), s._2()))
+                .keys().top(getRealTopK(topK));
     }
 
     /**
@@ -176,12 +173,23 @@ public class MovieQueriesProvider implements Serializable{
     }
 
     /**
+     * this service will check for topK if available and return the number
+     * we really need to return
+     *
+     * @param k the top k given
+     * @return the biggest possible
+     */
+    int getRealTopK(int k){
+        long movieNum = moviesCount();
+        return (int)(k > movieNum ? movieNum : k);
+    }
+
+    /**
      * This service method rounds a double to 5 decimal digits
      * @param number number to format
      * @return rounded double with 5 decimal points
      */
-    static double roundFiveDecimal(double number)
-    {
+    static double roundFiveDecimal(double number) {
         return (double)Math.round((number) * 100000d) / 100000d;
     }
 }
