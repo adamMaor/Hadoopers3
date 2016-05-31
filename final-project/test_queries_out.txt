@@ -1,0 +1,16 @@
+moviesCount
+Total number of distinct movies reviewed [4].
+totalMoviesAverageScore
+Total average: 4.23
+totalMovieAverage B00004CK40
+Total average for movie 'B00004CK40': 4.63636
+getTopKMoviesAverage 2
+Movie{productId='B00004CK40', score=4.63636}
+Movie{productId='B0002IQNAG', score=4.61702}
+getTopKMoviesAverage 4
+Movie{productId='B00004CK40', score=4.63636}
+Movie{productId='B0002IQNAG', score=4.61702}
+Movie{productId='B000BI1YVU', score=4.125}
+Movie{productId='B00004CK47', score=3.42308}
+movieWithHighestAverage
+The movie with highest average: Movie{productId='B00004CK40', score=4.63636}

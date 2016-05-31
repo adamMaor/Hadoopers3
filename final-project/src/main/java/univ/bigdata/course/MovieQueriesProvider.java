@@ -1,16 +1,29 @@
+/**
+ * Submitters information - Hadoopers team:
+ * Vadim Khakham 	vadim.khakham@gmail.com	311890156
+ * Michel Guralnik mikijoy@gmail.com 	306555822
+ * Gilad Eini 	giladeini@gmail.com	034744920
+ * Adam Maor 	maorcpa.adam@gmail.com	036930501
+ */
+
 package univ.bigdata.course;
 
+
 import org.apache.spark.api.java.JavaPairRDD;
+import scala.Serializable;
 import scala.Tuple2;
 import univ.bigdata.course.movie.Movie;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.SparkConf;
 import univ.bigdata.course.movie.MovieReview;
+import static java.lang.Math.toIntExact;
 
+import java.util.Comparator;
 import java.util.List;
 
-public class MovieQueriesProvider {
+
+public class MovieQueriesProvider implements Serializable{
     JavaRDD<MovieReview> movieReviews;
     /**
      * Constructor method
@@ -48,10 +61,25 @@ public class MovieQueriesProvider {
      * with highest average should be returned
      *
      * @param topK - number of top movies to return
-     * @return - list of movies where each @{@link Movie} includes it's average
      */
-    String getTopKMoviesAverage(final long topK) {
-        return null;
+    List<Movie> getTopKMoviesAverage(int topK) {
+        int moviesNum = toIntExact(moviesCount());
+        return movieReviews
+                .mapToPair(s-> new Tuple2<>(s.getMovie().getProductId(), new Tuple2<>(s.getMovie().getScore(), 1)))
+                .reduceByKey((a, b)-> new Tuple2<>(a._1 + b._1, a._2 + b._2))
+                .map(s -> new Movie(s._1, roundFiveDecimal(s._2._1 / s._2._2)))
+                .top(topK > moviesNum ? moviesNum : topK);
+    }
+
+    class StringDoubleTupleComparator implements Comparator<Tuple2<String, Double>>, Serializable {
+        @Override
+        public int compare(Tuple2<String, Double> o1, Tuple2<String, Double> o2) {
+            if (o1._2().equals(o2._2())) {
+                return o1._1().compareTo(o2._1());
+            } else {
+                return o1._2().compareTo(o2._2()) * -1;
+            }
+        }
     }
 
     /**
@@ -61,8 +89,8 @@ public class MovieQueriesProvider {
      *
      * @return - the movies record @{@link Movie}
      */
-    String movieWithHighestAverage() {
-        return null;
+    Movie movieWithHighestAverage() {
+        return getTopKMoviesAverage(1).get(0);
     }
 
     /**
@@ -142,7 +170,7 @@ public class MovieQueriesProvider {
     /**
      * Total movies count
      */
-    double moviesCount() {
+    long moviesCount() {
         JavaRDD<String> distinctMovies = movieReviews.map(s->s.getMovie().getProductId()).distinct();
         return distinctMovies.count();
     }
@@ -152,7 +180,7 @@ public class MovieQueriesProvider {
      * @param number number to format
      * @return rounded double with 5 decimal points
      */
-    private double roundFiveDecimal(double number)
+    static double roundFiveDecimal(double number)
     {
         return (double)Math.round((number) * 100000d) / 100000d;
     }

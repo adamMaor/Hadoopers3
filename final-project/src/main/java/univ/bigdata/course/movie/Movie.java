@@ -7,7 +7,9 @@
  */
 package univ.bigdata.course.movie;
 
-public class Movie implements Comparable<Movie> {
+import scala.Serializable;
+
+public class Movie implements Comparable<Movie>, Serializable {
     private String productId;
 
     private double score;
@@ -47,7 +49,7 @@ public class Movie implements Comparable<Movie> {
     @Override
     public int compareTo(Movie movie) {
         if (this.score == movie.score){
-            return this.productId.compareTo(movie.productId);
+            return this.productId.compareTo(movie.productId) * -1;
         }
         else {
             return this.score > movie.score ? 1 : -1;
