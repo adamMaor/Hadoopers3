@@ -1,5 +1,7 @@
 package univ.bigdata.course;
 
+import org.apache.spark.api.java.JavaDoubleRDD;
+import scala.Double;
 import univ.bigdata.course.movie.Movie;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.JavaRDD;
@@ -20,11 +22,10 @@ public class MovieQueriesProvider {
 
     /**
      * Method which calculates total scores average for all movies.
-     *
-     * @return - the average
-     */
+     **/
     String totalMoviesAverageScore() {
-        return null;
+        JavaDoubleRDD movieScores = movieReviews.mapToDouble(s -> s.getMovie().getScore());
+        return "Total average: " + roundFiveDecimal(movieScores.sum()/movieScores.count());
     }
 
     /**
@@ -143,5 +144,15 @@ public class MovieQueriesProvider {
     String moviesCount() {
         JavaRDD<String> distinctMovies = movieReviews.map(s->s.getMovie().getProductId()).distinct();
         return "Total number of distinct movies reviewed [" + distinctMovies.count() + "].";
+    }
+
+    /**
+     * This service method rounds a double to 5 decimal digits
+     * @param number number to format
+     * @return rounded double with 5 decimal points
+     */
+    private double roundFiveDecimal(double number)
+    {
+        return (double)Math.round((number) * 100000d) / 100000d;
     }
 }

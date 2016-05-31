@@ -1,3 +1,5 @@
 movies-simple.txt
 test_queries_out.txt
 moviesCount
+totalMoviesAverageScore
+totalMovieAverage B00004CK40
