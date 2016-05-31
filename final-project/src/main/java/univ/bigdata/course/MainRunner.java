@@ -43,7 +43,38 @@ public class MainRunner {
     private static void executeCommand(MovieQueriesProvider provider, PrintStream printer, String command) {
         String[] commandSplitted = command.split(" ");
         // function name is the first word, following words are parameters
+        printer.println(commandSplitted[0]);
         switch (commandSplitted[0]) {
+            case "totalMoviesAverageScore":
+                printer.println(provider.totalMoviesAverageScore());
+                break;
+            case "totalMovieAverage":
+                printer.println(provider.totalMovieAverage(commandSplitted[1]));
+                break;
+            case "getTopKMoviesAverage":
+                printer.println(provider.getTopKMoviesAverage(Long.valueOf(commandSplitted[1]).longValue()));
+                break;
+            case "movieWithHighestAverage":
+                printer.println(provider.movieWithHighestAverage());
+                break;
+            case "mostReviewedProduct":
+                printer.println(provider.mostReviewedProduct());
+                break;
+            case "reviewCountPerMovieTopKMovies":
+                printer.println(provider.reviewCountPerMovieTopKMovies(Integer.parseInt(commandSplitted[1])));
+                break;
+            case "mostPopularMovieReviewedByKUsers":
+                printer.println(provider.mostPopularMovieReviewedByKUsers(Integer.parseInt(commandSplitted[1])));
+                break;
+            case "moviesReviewWordsCount":
+                printer.println(provider.moviesReviewWordsCount(Integer.parseInt(commandSplitted[1])));
+                break;
+            case "topYMoviesReviewTopXWordsCount":
+                printer.println(provider.topYMoviesReviewTopXWordsCount(Integer.parseInt(commandSplitted[1]), Integer.parseInt(commandSplitted[2])));
+                break;
+            case "topKHelpfullUsers":
+                printer.println(provider.topKHelpfullUsers(Integer.parseInt(commandSplitted[1])));
+                break;
             case "moviesCount":
                 printer.println(provider.moviesCount());
                 break;
