@@ -68,8 +68,7 @@ public class MainRunner {
                 provider.getTopKMoviesAverage(Integer.valueOf(commandSplitted[1])).forEach(printer::println);
                 break;
             case "movieWithHighestAverage":
-                Movie highestAvg = provider.movieWithHighestAverage();
-                printer.println("The movie with highest average: " + highestAvg);
+                printer.println("The movie with highest average: " + provider.movieWithHighestAverage());
                 break;
             case "mostReviewedProduct":
                 printer.println("The most reviewed movie product id is " + provider.mostReviewedProduct());
@@ -77,7 +76,7 @@ public class MainRunner {
             case "reviewCountPerMovieTopKMovies":
                 List<Movie> movies = provider.reviewCountPerMovieTopKMovies(Integer.parseInt(commandSplitted[1]));
                 for (Movie movie : movies) {
-                    printer.println("Movie product id = [" + movie.getProductId()+ "], reviews count [" + movie.getScore() + "].");
+                    printer.println("Movie product id = [" + movie.getProductId()+ "], reviews count [" + (int)movie.getScore() + "].");
                 };
                 break;
             case "mostPopularMovieReviewedByKUsers":
@@ -95,10 +94,7 @@ public class MainRunner {
                         Integer.parseInt(commandSplitted[2])).forEach(printer::println);;
                 break;
             case "topKHelpfullUsers":
-                List<User> Users = provider.topKHelpfullUsers(Integer.parseInt(commandSplitted[1]));
-                for (User user : Users) {
-                    printer.println(user);
-                }
+                provider.topKHelpfullUsers(Integer.parseInt(commandSplitted[1])).forEach(printer::println);
                 break;
             case "moviesCount":
                 printer.println("Total number of distinct movies reviewed [" + provider.moviesCount()  + "].");
