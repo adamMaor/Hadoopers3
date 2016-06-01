@@ -95,7 +95,10 @@ public class MainRunner {
                         Integer.parseInt(commandSplitted[2])).forEach(printer::println);;
                 break;
             case "topKHelpfullUsers":
-                printer.println(provider.topKHelpfullUsers(Integer.parseInt(commandSplitted[1])));
+                List<User> Users = provider.topKHelpfullUsers(Integer.parseInt(commandSplitted[1]));
+                for (User user : Users) {
+                    printer.println(user);
+                }
                 break;
             case "moviesCount":
                 printer.println("Total number of distinct movies reviewed [" + provider.moviesCount()  + "].");

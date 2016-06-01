@@ -167,8 +167,15 @@ public class MovieQueriesProvider implements Serializable{
      * @return - map of users to number of reviews they made. Map ordered by number of reviews
      * in decreasing order.
      */
-    String topKHelpfullUsers(final int k) {
-        return null;
+    List<User> topKHelpfullUsers(final int k) {
+        JavaRDD<User> helpfulUsers = movieReviews
+            .mapToPair(a -> new Tuple2<>(a.getUserId(), a.getHelpfulness()))
+            .mapToPair(s -> new Tuple2<>(s._1, new Tuple2<>(Double.parseDouble(s._2.substring(0,s._2.lastIndexOf('/'))),
+                    Double.parseDouble(s._2.substring(s._2.lastIndexOf('/') + 1, s._2.length())))))
+            .filter(s -> s._2._2 != 0)
+            .reduceByKey((a,b) -> new Tuple2<>(a._1 + b._1, a._2 + b._2))
+            .map(s -> new User(s._1, roundFiveDecimal(s._2._1/s._2._2)));
+        return helpfulUsers.top(getRealTopK(k,helpfulUsers.count() ));
     }
 
     /**
