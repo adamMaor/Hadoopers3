@@ -126,8 +126,14 @@ public class MovieQueriesProvider implements Serializable{
      * @param numOfUsers - limit of minimum users which reviewed the movie
      * @return - movie which got highest count of reviews
      */
-    String mostPopularMovieReviewedByKUsers(final int numOfUsers) {
-        return null;
+    Movie mostPopularMovieReviewedByKUsers(final int numOfUsers) {
+        List<Movie> popularMovieFiltered =  movieReviews
+            .mapToPair(s-> new Tuple2<>(s.getMovie().getProductId(), new Tuple2<>(s.getMovie().getScore(), 1)))
+            .reduceByKey((a, b)-> new Tuple2<>(a._1 + b._1, a._2 + b._2))
+            .filter(s -> s._2._2 >= numOfUsers)
+            .map(s -> new Movie(s._1, roundFiveDecimal(s._2._1 / s._2._2)))
+            .top(1);
+        return popularMovieFiltered.isEmpty()? null : popularMovieFiltered.get(0);
     }
 
     /**
@@ -192,4 +198,5 @@ public class MovieQueriesProvider implements Serializable{
     static double roundFiveDecimal(double number) {
         return (double)Math.round((number) * 100000d) / 100000d;
     }
+
 }

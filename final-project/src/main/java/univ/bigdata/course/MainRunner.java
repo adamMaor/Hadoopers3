@@ -10,6 +10,7 @@ package univ.bigdata.course;
 
 import univ.bigdata.course.movie.Movie;
 
+import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
@@ -20,6 +21,7 @@ import java.util.Scanner;
 public class MainRunner {
 
     public static void main(String[] args) throws FileNotFoundException {
+        System.out.println("\t\t XXX");
         if (args[0].equals("commands")) {
             LinkedList<String> commands = returnFileLines("/home/vagrant/final-project/resources/" + args[1]);
             // first line is the input file
@@ -76,11 +78,14 @@ public class MainRunner {
                 List<Movie> movies = provider.reviewCountPerMovieTopKMovies(Integer.parseInt(commandSplitted[1]));
                 for (Movie movie : movies) {
                     printer.println("Movie product id = [" + movie.getProductId()+ "], reviews count [" + movie.getScore() + "].");
-                }
-                ;
+                };
                 break;
             case "mostPopularMovieReviewedByKUsers":
-                printer.println(provider.mostPopularMovieReviewedByKUsers(Integer.parseInt(commandSplitted[1])));
+                Integer numOfUsers = Integer.parseInt(commandSplitted[1]);
+                Movie movie = provider.mostPopularMovieReviewedByKUsers(numOfUsers);
+                if (movie!=null) {
+                    printer.println("Most popular movie with highest average score, reviewed by at least " + numOfUsers + " users " + movie.getProductId());
+                }
                 break;
             case "moviesReviewWordsCount":
                 printer.println(provider.moviesReviewWordsCount(Integer.parseInt(commandSplitted[1])));
