@@ -8,4 +8,4 @@ mostReviewedProduct
 getTopKMoviesAverage 2
 getTopKMoviesAverage 4
 movieWithHighestAverage
-
+moviesReviewWordsCount 100

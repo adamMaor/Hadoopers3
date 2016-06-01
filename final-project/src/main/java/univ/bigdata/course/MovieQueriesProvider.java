@@ -17,8 +17,11 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.SparkConf;
 import univ.bigdata.course.movie.MovieReview;
+import univ.bigdata.course.movie.WordCount;
+
 import static java.lang.Math.toIntExact;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
@@ -67,18 +70,7 @@ public class MovieQueriesProvider implements Serializable{
                 .mapToPair(s-> new Tuple2<>(s.getMovie().getProductId(), new Tuple2<>(s.getMovie().getScore(), 1)))
                 .reduceByKey((a, b)-> new Tuple2<>(a._1 + b._1, a._2 + b._2))
                 .map(s -> new Movie(s._1, roundFiveDecimal(s._2._1 / s._2._2)))
-                .top(getRealTopK(topK));
-    }
-
-    class StringDoubleTupleComparator implements Comparator<Tuple2<String, Double>>, Serializable {
-        @Override
-        public int compare(Tuple2<String, Double> o1, Tuple2<String, Double> o2) {
-            if (o1._2().equals(o2._2())) {
-                return o1._1().compareTo(o2._1());
-            } else {
-                return o1._2().compareTo(o2._2()) * -1;
-            }
-        }
+                .top(getRealTopK(topK, moviesCount()));
     }
 
     /**
@@ -111,12 +103,12 @@ public class MovieQueriesProvider implements Serializable{
      * @return - returns map with movies product id and the count of over all reviews assigned to it.
      */
     List<Movie> reviewCountPerMovieTopKMovies(final int topK) {
-        // we will "trick" movie to have the count instead of the score in order to use it's comperator
+        // we will "trick" movie to have the count instead of the score in order to use it's comparator
         return movieReviews
                 .mapToPair(s -> new Tuple2<>(s.getMovie().getProductId(), 1))
                 .reduceByKey((a, b) -> a + b)
-                .map(s -> new Movie(s._1(), (double)s._2()))
-                .top(getRealTopK(topK));
+                .map(s -> new Movie(s._1(), s._2()))
+                .top(getRealTopK(topK, moviesCount()));
     }
 
     /**
@@ -140,11 +132,15 @@ public class MovieQueriesProvider implements Serializable{
      * Compute map of words count for top K words
      *
      * @param topK - top k number
-     * @return - map where key is the word and value is the number of occurrences
-     * of this word in the reviews summary, map ordered by words count in decreasing order.
      */
-    String moviesReviewWordsCount(final int topK) {
-        return null;
+    List<WordCount> moviesReviewWordsCount(final int topK) {
+        JavaRDD<WordCount> wordCounts = movieReviews
+                .map(MovieReview::getReview)
+                .flatMap(s-> Arrays.asList(s.split(" ")))
+                .mapToPair(s->new Tuple2<>(s, 1))
+                .reduceByKey((a, b)-> a + b)
+                .map(s->new WordCount(s._1(), s._2()));
+        return wordCounts.top(getRealTopK(topK, wordCounts.count()));
     }
 
     /**
@@ -155,8 +151,14 @@ public class MovieQueriesProvider implements Serializable{
      * @param topWords - number of top words to return
      * @return - map of words to count, ordered by count in decreasing order.
      */
-    String topYMoviesReviewTopXWordsCount(final int topMovies, final int topWords) {
-        return null;
+    List<WordCount> topYMoviesReviewTopXWordsCount(final int topMovies, final int topWords) {
+        return movieReviews
+                .map(MovieReview::getReview)
+                .flatMap(s-> Arrays.asList(s.split(" ")))
+                .mapToPair(s->new Tuple2<>(s, 1))
+                .reduceByKey((a, b)-> a + b)
+                .map(s->new WordCount(s._1(), s._2()))
+                .top(topWords);
     }
 
     /**
@@ -185,9 +187,8 @@ public class MovieQueriesProvider implements Serializable{
      * @param k the top k given
      * @return the biggest possible
      */
-    int getRealTopK(int k){
-        long movieNum = moviesCount();
-        return (int)(k > movieNum ? movieNum : k);
+    int getRealTopK(int k, long items){
+        return (int)(k > items ? items : k);
     }
 
     /**

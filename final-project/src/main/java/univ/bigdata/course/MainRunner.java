@@ -88,11 +88,11 @@ public class MainRunner {
                 }
                 break;
             case "moviesReviewWordsCount":
-                printer.println(provider.moviesReviewWordsCount(Integer.parseInt(commandSplitted[1])));
+                provider.moviesReviewWordsCount(Integer.parseInt(commandSplitted[1])).forEach(printer::println);
                 break;
             case "topYMoviesReviewTopXWordsCount":
-                printer.println(provider.topYMoviesReviewTopXWordsCount(Integer.parseInt(commandSplitted[1]),
-                        Integer.parseInt(commandSplitted[2])));
+                provider.topYMoviesReviewTopXWordsCount(Integer.parseInt(commandSplitted[1]),
+                        Integer.parseInt(commandSplitted[2])).forEach(printer::println);;
                 break;
             case "topKHelpfullUsers":
                 printer.println(provider.topKHelpfullUsers(Integer.parseInt(commandSplitted[1])));
@@ -112,7 +112,7 @@ public class MainRunner {
      * @return the initialized printer
      */
     private static PrintStream initPrinter(String outputFile) {
-        PrintStream printer = null;
+        PrintStream printer;
         try {
             printer = new PrintStream(outputFile);
         } catch (FileNotFoundException e) {
