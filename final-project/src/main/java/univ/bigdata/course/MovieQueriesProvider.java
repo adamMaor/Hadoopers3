@@ -8,8 +8,6 @@
 
 package univ.bigdata.course;
 
-
-import org.apache.spark.api.java.JavaPairRDD;
 import scala.Serializable;
 import scala.Tuple2;
 import univ.bigdata.course.movie.Movie;
@@ -19,10 +17,8 @@ import org.apache.spark.SparkConf;
 import univ.bigdata.course.movie.MovieReview;
 import univ.bigdata.course.movie.WordCount;
 
-import static java.lang.Math.toIntExact;
-
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 
 
@@ -152,13 +148,16 @@ public class MovieQueriesProvider implements Serializable{
      * @return - map of words to count, ordered by count in decreasing order.
      */
     List<WordCount> topYMoviesReviewTopXWordsCount(final int topMovies, final int topWords) {
-        return movieReviews
+        List<String> topYMovies = new ArrayList<>();
+        reviewCountPerMovieTopKMovies(topMovies).forEach(movie -> topYMovies.add(movie.getProductId()));
+        JavaRDD<WordCount> wordCounts = movieReviews
+                .filter(s-> topYMovies.contains(s.getMovie().getProductId()))
                 .map(MovieReview::getReview)
                 .flatMap(s-> Arrays.asList(s.split(" ")))
                 .mapToPair(s->new Tuple2<>(s, 1))
                 .reduceByKey((a, b)-> a + b)
-                .map(s->new WordCount(s._1(), s._2()))
-                .top(topWords);
+                .map(s->new WordCount(s._1(), s._2()));
+        return wordCounts.top(getRealTopK(topWords, wordCounts.count()));
     }
 
     /**

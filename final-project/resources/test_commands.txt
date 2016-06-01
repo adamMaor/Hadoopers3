@@ -9,3 +9,5 @@ getTopKMoviesAverage 2
 getTopKMoviesAverage 4
 movieWithHighestAverage
 moviesReviewWordsCount 100
+topYMoviesReviewTopXWordsCount 100 100
+topYMoviesReviewTopXWordsCount 100 10
