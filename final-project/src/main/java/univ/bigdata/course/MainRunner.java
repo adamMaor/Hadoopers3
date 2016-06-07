@@ -21,7 +21,6 @@ import java.util.Scanner;
 public class MainRunner {
 
     public static void main(String[] args) throws FileNotFoundException {
-        System.out.println("\t\t XXX");
         if (args[0].equals("commands")) {
             LinkedList<String> commands = returnFileLines("/home/vagrant/final-project/resources/" + args[1]);
             // first line is the input file
