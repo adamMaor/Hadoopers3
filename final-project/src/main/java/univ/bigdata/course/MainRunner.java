@@ -8,7 +8,9 @@
 
 package univ.bigdata.course;
 
+import scala.Tuple2;
 import univ.bigdata.course.movie.Movie;
+import univ.bigdata.course.movie.Person;
 
 import java.awt.*;
 import java.io.File;
@@ -20,21 +22,32 @@ import java.util.Scanner;
 
 public class MainRunner {
 
-    public static void main(String[] args) throws FileNotFoundException {
-        if (args[0].equals("commands")) {
-            LinkedList<String> commands = returnFileLines("/home/vagrant/final-project/resources/" + args[1]);
-            // first line is the input file
-            String inputFile = commands.removeFirst();
-            // second line is the output file
-            String outputFile = commands.removeFirst();
-            MovieQueriesProvider provider = new MovieQueriesProvider(inputFile);
-            final PrintStream printer = initPrinter(outputFile);
-            // following lines are the commands.
-            for (String command : commands) {
-                if (command.isEmpty() == false){
-                    executeCommand(provider, printer, command);
+    public static void main(String[] args) throws Exception {
+        MovieQueriesProvider provider;
+        PrintStream printer;
+        switch (args[0]) {
+            case "commands":
+                LinkedList<String> commands = returnFileLines("/home/vagrant/final-project/resources/" + args[1]);
+                // first line is the input file
+                String inputFile = commands.removeFirst();
+                // second line is the output file
+                String outputFile = commands.removeFirst();
+                provider = new MovieQueriesProvider(inputFile);
+                printer = initPrinter(outputFile);
+                // following lines are the commands.
+                for (String command : commands) {
+                    if (!command.isEmpty()) {
+                        executeCommand(provider, printer, command);
+                    }
                 }
-            }
+                break;
+            case "pagerank":
+                provider = new MovieQueriesProvider(args[1]);
+                printer = initPrinter("outputfile2");
+                provider.getPageRank().forEach(printer::println);
+                break;
+            default:
+                throw new RuntimeException("command not found " + args[0]);
         }
     }
 
