@@ -186,6 +186,14 @@ public class MovieQueriesProvider implements Serializable{
         return distinctMovies.count();
     }
 
+    List<Tuple2<String, Double>> getPageRank() throws Exception {
+        JavaRDD<String> graph = movieReviews
+//                .mapToPair(s->new Tuple2<>(s.getMovie(), s.getUserId()));
+
+//        return JavaPageRank.pageRank(graph, 10);
+        return null;
+    }
+
     /**
      * this service will check for topK if available and return the number
      * we really need to return
