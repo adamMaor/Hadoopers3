@@ -30,7 +30,9 @@ public class MainRunner {
             final PrintStream printer = initPrinter(outputFile);
             // following lines are the commands.
             for (String command : commands) {
-                executeCommand(provider, printer, command);
+                if (command.isEmpty() == false){
+                    executeCommand(provider, printer, command);
+                }
             }
         }
     }
@@ -75,9 +77,8 @@ public class MainRunner {
             case "reviewCountPerMovieTopKMovies":
                 List<Movie> movies = provider.reviewCountPerMovieTopKMovies(Integer.parseInt(commandSplitted[1]));
                 for (Movie movie : movies) {
-                    printer.println("Movie product id = [" + movie.getProductId()+ "], reviews count [" + movie.getScore() + "].");
+                    printer.println("Movie product id = [" + movie.getProductId()+ "], reviews count [" + (int)movie.getScore() + "].");
                 }
-                ;
                 break;
             case "mostPopularMovieReviewedByKUsers":
                 printer.println(provider.mostPopularMovieReviewedByKUsers(Integer.parseInt(commandSplitted[1])));
