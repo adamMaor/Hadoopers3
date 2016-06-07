@@ -8,6 +8,7 @@
 
 package univ.bigdata.course;
 
+import org.apache.spark.api.java.JavaPairRDD;
 import scala.Serializable;
 import scala.Tuple2;
 import univ.bigdata.course.movie.Movie;
@@ -187,11 +188,16 @@ public class MovieQueriesProvider implements Serializable{
     }
 
     List<Tuple2<String, Double>> getPageRank() throws Exception {
-        JavaRDD<String> graph = movieReviews
-//                .mapToPair(s->new Tuple2<>(s.getMovie(), s.getUserId()));
+        JavaPairRDD<String, String> graph = movieReviews
+                .mapToPair(s->new Tuple2<>(s.getMovie().getProductId(), s.getUserId()));
+        JavaRDD<String> graphCart =
+                graph.cartesian(graph)
+                .filter(s->(s._1._1.equals(s._2._2) && !s._1._2.equals(s._2._2)))
+                .map(s->s._1._2 + " " + s._2._2)
+                .distinct();
 
-//        return JavaPageRank.pageRank(graph, 10);
-        return null;
+
+        return JavaPageRank.pageRank(graphCart, 10);
     }
 
     /**
