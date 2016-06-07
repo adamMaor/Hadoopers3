@@ -31,6 +31,7 @@ import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.Function2;
 import org.apache.spark.api.java.function.PairFlatMapFunction;
 import org.apache.spark.api.java.function.PairFunction;
+import univ.bigdata.course.movie.Person;
 
 /**
  * Computes the PageRank of URLs from an input file. Input file should
@@ -54,7 +55,7 @@ public final class JavaPageRank {
         }
     }
 
-    public static List<Tuple2<String, Double>> pageRank(JavaRDD<String> UrlLines, int numOfIterations) throws Exception {
+    public static List<Person> pageRank(JavaRDD<String> UrlLines, int numOfIterations) throws Exception {
         // Loads JavaRDD<String> in format of:
         //     URL         neighbor URL
         //     URL         neighbor URL
@@ -89,6 +90,7 @@ public final class JavaPageRank {
         }
 
         // Collects all URL ranks and dump them to console.
-        return ranks.collect();
+        JavaRDD<Person> people = ranks.map(s->new Person(s._1, s._2));
+        return people.top(100);
     }
 }

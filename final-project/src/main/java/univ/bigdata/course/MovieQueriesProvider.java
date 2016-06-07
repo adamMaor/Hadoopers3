@@ -16,6 +16,7 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.SparkConf;
 import univ.bigdata.course.movie.MovieReview;
+import univ.bigdata.course.movie.Person;
 import univ.bigdata.course.movie.WordCount;
 
 import java.util.ArrayList;
@@ -187,17 +188,16 @@ public class MovieQueriesProvider implements Serializable{
         return distinctMovies.count();
     }
 
-    List<Tuple2<String, Double>> getPageRank() throws Exception {
+    List<Person> getPageRank() throws Exception {
         JavaPairRDD<String, String> graph = movieReviews
                 .mapToPair(s->new Tuple2<>(s.getMovie().getProductId(), s.getUserId()));
         JavaRDD<String> graphCart =
                 graph.cartesian(graph)
-                .filter(s->(s._1._1.equals(s._2._2) && !s._1._2.equals(s._2._2)))
+                .filter(s->(s._1._1.equals(s._2._1) && !s._1._2.equals(s._2._2)))
                 .map(s->s._1._2 + " " + s._2._2)
                 .distinct();
 
-
-        return JavaPageRank.pageRank(graphCart, 10);
+        return JavaPageRank.pageRank(graphCart, 100);
     }
 
     /**

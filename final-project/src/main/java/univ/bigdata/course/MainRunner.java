@@ -10,6 +10,7 @@ package univ.bigdata.course;
 
 import scala.Tuple2;
 import univ.bigdata.course.movie.Movie;
+import univ.bigdata.course.movie.Person;
 
 import java.awt.*;
 import java.io.File;
@@ -43,11 +44,7 @@ public class MainRunner {
             case "pagerank":
                 provider = new MovieQueriesProvider(args[1]);
                 printer = initPrinter("outputfile2");
-                List<Tuple2<String, Double>> list = provider.getPageRank();
-                printer.println("list size: " + list.size());
-                for (Tuple2<String, Double> item : list) {
-                    printer.println("user: " + item._1 + " pagerank: " + item._2);
-                }
+                provider.getPageRank().forEach(printer::println);
                 break;
             default:
                 throw new RuntimeException("command not found " + args[0]);
