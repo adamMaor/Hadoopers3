@@ -28,9 +28,9 @@ public class MovieQueriesProvider implements Serializable{
      * Constructor method
      */
     MovieQueriesProvider(String inputFile) {
-        SparkConf conf = new SparkConf().setAppName("hw3").setMaster("local");
+        SparkConf conf = new SparkConf().setAppName("hw3");
         JavaSparkContext sc = new JavaSparkContext(conf);
-        JavaRDD<String> fileLines = sc.textFile("/home/vagrant/final-project/resources/" + inputFile);
+        JavaRDD<String> fileLines = sc.textFile(inputFile);
         movieReviews = fileLines.map(MovieReview::new);
     }
 

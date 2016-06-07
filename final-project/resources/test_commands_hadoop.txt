@@ -1,4 +1,4 @@
-/home/vagrant/final-project/resources/movies-simple.txt
+hdfs://master:9000/home/vagrant/final-project/resources/movies-simple.txt
 /home/vagrant/final-project/test_queries_out.txt
 moviesCount
 totalMoviesAverageScore
