@@ -10,6 +10,7 @@ package univ.bigdata.course;
 
 import univ.bigdata.course.movie.Movie;
 
+import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
@@ -20,6 +21,7 @@ import java.util.Scanner;
 public class MainRunner {
 
     public static void main(String[] args) throws FileNotFoundException {
+        System.out.println("\t\t XXX");
         if (args[0].equals("commands")) {
             LinkedList<String> commands = returnFileLines("/home/vagrant/final-project/resources/" + args[1]);
             // first line is the input file
@@ -68,8 +70,7 @@ public class MainRunner {
                 provider.getTopKMoviesAverage(Integer.valueOf(commandSplitted[1])).forEach(printer::println);
                 break;
             case "movieWithHighestAverage":
-                Movie highestAvg = provider.movieWithHighestAverage();
-                printer.println("The movie with highest average: " + highestAvg);
+                printer.println("The movie with highest average: " + provider.movieWithHighestAverage());
                 break;
             case "mostReviewedProduct":
                 printer.println("The most reviewed movie product id is " + provider.mostReviewedProduct());
@@ -81,17 +82,21 @@ public class MainRunner {
                 }
                 break;
             case "mostPopularMovieReviewedByKUsers":
-                printer.println(provider.mostPopularMovieReviewedByKUsers(Integer.parseInt(commandSplitted[1])));
+                Integer numOfUsers = Integer.parseInt(commandSplitted[1]);
+                Movie movie = provider.mostPopularMovieReviewedByKUsers(numOfUsers);
+                if (movie!=null) {
+                    printer.println("Most popular movie with highest average score, reviewed by at least " + numOfUsers + " users " + movie.getProductId());
+                }
                 break;
             case "moviesReviewWordsCount":
-                printer.println(provider.moviesReviewWordsCount(Integer.parseInt(commandSplitted[1])));
+                provider.moviesReviewWordsCount(Integer.parseInt(commandSplitted[1])).forEach(printer::println);
                 break;
             case "topYMoviesReviewTopXWordsCount":
-                printer.println(provider.topYMoviesReviewTopXWordsCount(Integer.parseInt(commandSplitted[1]),
-                        Integer.parseInt(commandSplitted[2])));
+                provider.topYMoviesReviewTopXWordsCount(Integer.parseInt(commandSplitted[1]),
+                        Integer.parseInt(commandSplitted[2])).forEach(printer::println);;
                 break;
             case "topKHelpfullUsers":
-                printer.println(provider.topKHelpfullUsers(Integer.parseInt(commandSplitted[1])));
+                provider.topKHelpfullUsers(Integer.parseInt(commandSplitted[1])).forEach(printer::println);
                 break;
             case "moviesCount":
                 printer.println("Total number of distinct movies reviewed [" + provider.moviesCount()  + "].");
@@ -108,7 +113,7 @@ public class MainRunner {
      * @return the initialized printer
      */
     private static PrintStream initPrinter(String outputFile) {
-        PrintStream printer = null;
+        PrintStream printer;
         try {
             printer = new PrintStream(outputFile);
         } catch (FileNotFoundException e) {

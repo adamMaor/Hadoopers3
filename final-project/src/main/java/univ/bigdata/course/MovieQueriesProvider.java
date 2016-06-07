@@ -8,8 +8,6 @@
 
 package univ.bigdata.course;
 
-
-import org.apache.spark.api.java.JavaPairRDD;
 import scala.Serializable;
 import scala.Tuple2;
 import univ.bigdata.course.movie.Movie;
@@ -17,9 +15,10 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.SparkConf;
 import univ.bigdata.course.movie.MovieReview;
-import static java.lang.Math.toIntExact;
+import univ.bigdata.course.movie.WordCount;
 
-import java.util.Comparator;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -67,18 +66,7 @@ public class MovieQueriesProvider implements Serializable{
                 .mapToPair(s-> new Tuple2<>(s.getMovie().getProductId(), new Tuple2<>(s.getMovie().getScore(), 1)))
                 .reduceByKey((a, b)-> new Tuple2<>(a._1 + b._1, a._2 + b._2))
                 .map(s -> new Movie(s._1, roundFiveDecimal(s._2._1 / s._2._2)))
-                .top(getRealTopK(topK));
-    }
-
-    class StringDoubleTupleComparator implements Comparator<Tuple2<String, Double>>, Serializable {
-        @Override
-        public int compare(Tuple2<String, Double> o1, Tuple2<String, Double> o2) {
-            if (o1._2().equals(o2._2())) {
-                return o1._1().compareTo(o2._1());
-            } else {
-                return o1._2().compareTo(o2._2()) * -1;
-            }
-        }
+                .top(getRealTopK(topK, moviesCount()));
     }
 
     /**
@@ -111,12 +99,12 @@ public class MovieQueriesProvider implements Serializable{
      * @return - returns map with movies product id and the count of over all reviews assigned to it.
      */
     List<Movie> reviewCountPerMovieTopKMovies(final int topK) {
-        // we will "trick" movie to have the count instead of the score in order to use it's comperator
+        // we will "trick" movie to have the count instead of the score in order to use it's comparator
         return movieReviews
                 .mapToPair(s -> new Tuple2<>(s.getMovie().getProductId(), 1))
                 .reduceByKey((a, b) -> a + b)
-                .map(s -> new Movie(s._1(), (double)s._2()))
-                .top(getRealTopK(topK));
+                .map(s -> new Movie(s._1(), s._2()))
+                .top(getRealTopK(topK, moviesCount()));
     }
 
     /**
@@ -126,19 +114,29 @@ public class MovieQueriesProvider implements Serializable{
      * @param numOfUsers - limit of minimum users which reviewed the movie
      * @return - movie which got highest count of reviews
      */
-    String mostPopularMovieReviewedByKUsers(final int numOfUsers) {
-        return null;
+    Movie mostPopularMovieReviewedByKUsers(final int numOfUsers) {
+        List<Movie> popularMovieFiltered =  movieReviews
+            .mapToPair(s-> new Tuple2<>(s.getMovie().getProductId(), new Tuple2<>(s.getMovie().getScore(), 1)))
+            .reduceByKey((a, b)-> new Tuple2<>(a._1 + b._1, a._2 + b._2))
+            .filter(s -> s._2._2 >= numOfUsers)
+            .map(s -> new Movie(s._1, roundFiveDecimal(s._2._1 / s._2._2)))
+            .top(1);
+        return popularMovieFiltered.isEmpty()? null : popularMovieFiltered.get(0);
     }
 
     /**
      * Compute map of words count for top K words
      *
      * @param topK - top k number
-     * @return - map where key is the word and value is the number of occurrences
-     * of this word in the reviews summary, map ordered by words count in decreasing order.
      */
-    String moviesReviewWordsCount(final int topK) {
-        return null;
+    List<WordCount> moviesReviewWordsCount(final int topK) {
+        JavaRDD<WordCount> wordCounts = movieReviews
+                .map(MovieReview::getReview)
+                .flatMap(s-> Arrays.asList(s.split(" ")))
+                .mapToPair(s->new Tuple2<>(s, 1))
+                .reduceByKey((a, b)-> a + b)
+                .map(s->new WordCount(s._1(), s._2()));
+        return wordCounts.top(getRealTopK(topK, wordCounts.count()));
     }
 
     /**
@@ -149,8 +147,17 @@ public class MovieQueriesProvider implements Serializable{
      * @param topWords - number of top words to return
      * @return - map of words to count, ordered by count in decreasing order.
      */
-    String topYMoviesReviewTopXWordsCount(final int topMovies, final int topWords) {
-        return null;
+    List<WordCount> topYMoviesReviewTopXWordsCount(final int topMovies, final int topWords) {
+        List<String> topYMovies = new ArrayList<>();
+        reviewCountPerMovieTopKMovies(topMovies).forEach(movie -> topYMovies.add(movie.getProductId()));
+        JavaRDD<WordCount> wordCounts = movieReviews
+                .filter(s-> topYMovies.contains(s.getMovie().getProductId()))
+                .map(MovieReview::getReview)
+                .flatMap(s-> Arrays.asList(s.split(" ")))
+                .mapToPair(s->new Tuple2<>(s, 1))
+                .reduceByKey((a, b)-> a + b)
+                .map(s->new WordCount(s._1(), s._2()));
+        return wordCounts.top(getRealTopK(topWords, wordCounts.count()));
     }
 
     /**
@@ -160,8 +167,15 @@ public class MovieQueriesProvider implements Serializable{
      * @return - map of users to number of reviews they made. Map ordered by number of reviews
      * in decreasing order.
      */
-    String topKHelpfullUsers(final int k) {
-        return null;
+    List<User> topKHelpfullUsers(final int k) {
+        JavaRDD<User> helpfulUsers = movieReviews
+            .mapToPair(a -> new Tuple2<>(a.getUserId(), a.getHelpfulness()))
+            .mapToPair(s -> new Tuple2<>(s._1, new Tuple2<>(Double.parseDouble(s._2.substring(0,s._2.lastIndexOf('/'))),
+                    Double.parseDouble(s._2.substring(s._2.lastIndexOf('/') + 1, s._2.length())))))
+            .filter(s -> s._2._2 != 0)
+            .reduceByKey((a,b) -> new Tuple2<>(a._1 + b._1, a._2 + b._2))
+            .map(s -> new User(s._1, roundFiveDecimal(s._2._1/s._2._2)));
+        return helpfulUsers.top(getRealTopK(k,helpfulUsers.count() ));
     }
 
     /**
@@ -179,9 +193,8 @@ public class MovieQueriesProvider implements Serializable{
      * @param k the top k given
      * @return the biggest possible
      */
-    int getRealTopK(int k){
-        long movieNum = moviesCount();
-        return (int)(k > movieNum ? movieNum : k);
+    int getRealTopK(int k, long items){
+        return (int)(k > items ? items : k);
     }
 
     /**
@@ -192,4 +205,5 @@ public class MovieQueriesProvider implements Serializable{
     static double roundFiveDecimal(double number) {
         return (double)Math.round((number) * 100000d) / 100000d;
     }
+
 }
