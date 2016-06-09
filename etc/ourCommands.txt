@@ -5,15 +5,25 @@ spark-submit \
   C:\GitHub\Hadoopers3\final-project\target\final-project-1.0-SNAPSHOT.jar
 
   
-  // run single node
+  // NOT HADOOP ! - run single node
 ~/final-project/resources/spark-1.6.1-bin-hadoop2.6/bin/spark-submit --class univ.bigdata.course.MainRunner --master local[2] --deploy-mode client /home/vagrant/final-project/target/final-project-1.0-SNAPSHOT.jar commands test_commands.txt
 
 
-// run cluster
-~/final-project/resources/spark-1.6.1-bin-hadoop2.6/bin/spark-submit --class univ.bigdata.course.MainRunner --master yarn --deploy-mode cluster --executor-memory 2G --num-executors 4 /home/vagrant/final-project/target/final-project-1.0-SNAPSHOT.jar commands test_commands_hadoop.txt
+// HADOOP
 
+// single node (master)
+~/final-project/resources/spark-1.6.1-bin-hadoop2.6/bin/spark-submit --class univ.bigdata.course.MainRunner --master local[2] --deploy-mode client /home/vagrant/final-project/target/final-project-1.0-SNAPSHOT.jar commands test_commands_hadoop.txt
+
+// run cluster
+~/final-project/resources/spark-1.6.1-bin-hadoop2.6/bin/spark-submit --class univ.bigdata.course.MainRunner --master yarn --deploy-mode cluster --executor-memory 1G --num-executors 2 /home/vagrant/final-project/target/final-project-1.0-SNAPSHOT.jar commands test_commands_hadoop.txt
+
+// kill a running spark application (ctrl + c obviously won't work)
+ yarn application -kill <app ID>  (example for app ID = application_1465480579805_0005)
 
 
 // make dirs in hdfs
+hadoop fs -mkdir res
 
-// copy all file in resources
+// copy all files that you need from resources
+hadoop fs -put /home/vagrant/final-project/resources/movies-simple.txt res/movies-simple.txt
+

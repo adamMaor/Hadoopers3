@@ -1,8 +1,8 @@
-/user/vagrant/res/movies-simple.txt
+/user/vagrant/res/movies-simple3.txt
 /home/vagrant/final-project/test_queries_out.txt
 moviesCount
 totalMoviesAverageScore
-totalMovieAverage B00004CK40
+totalMovieAverage 6300185281
 reviewCountPerMovieTopKMovies 4
 mostReviewedProduct
 getTopKMoviesAverage 2

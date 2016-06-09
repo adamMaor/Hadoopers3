@@ -50,6 +50,9 @@ public class MovieQueriesProvider implements Serializable{
      */
     double totalMovieAverage(final String productId) {
         JavaRDD<MovieReview> filteredMovieReviews = movieReviews.filter(s -> s.getMovie().getProductId().contains(productId));
+        if (filteredMovieReviews.isEmpty()){
+            return 0;
+        }
         JavaRDD<Double> movieScores = filteredMovieReviews.map(s -> s.getMovie().getScore());
         double sum = movieScores.reduce((a,b) -> a+b);
         return roundFiveDecimal(sum/movieScores.count());
