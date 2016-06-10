@@ -1,9 +1,9 @@
-/res/movies-simple2.txt
+/res/movies-simple3.txt
 /home/vagrant/final-project/test_queries_out.txt
 getTopKMoviesAverage 2
 getTopKMoviesAverage 4
 totalMoviesAverageScore
-totalMovieAverage B00004CK40
+totalMovieAverage 6300185281
 movieWithHighestAverage
 reviewCountPerMovieTopKMovies 4
 mostReviewedProduct

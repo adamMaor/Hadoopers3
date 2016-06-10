@@ -15,8 +15,13 @@ spark-submit \
 // single node (master)
 ~/final-project/resources/spark-1.6.1-bin-hadoop2.6/bin/spark-submit --class univ.bigdata.course.MainRunner --master local[2] --deploy-mode client /home/vagrant/final-project/target/final-project-1.0-SNAPSHOT.jar commands test_commands_hadoop.txt
 
-// run cluster
-~/final-project/resources/spark-1.6.1-bin-hadoop2.6/bin/spark-submit --class univ.bigdata.course.MainRunner --master yarn --deploy-mode cluster --executor-memory 1G --num-executors 2 /home/vagrant/final-project/target/final-project-1.0-SNAPSHOT.jar commands test_commands_hadoop.txt
+// run cluster - small file
+~/final-project/resources/spark-1.6.1-bin-hadoop2.6/bin/spark-submit --class univ.bigdata.course.MainRunner --master yarn --deploy-mode cluster --executor-memory 1G --num-executors 3 /home/vagrant/final-project/target/final-project-1.0-SNAPSHOT.jar commands test_commands_hadoop.txt
+// mid file
+~/final-project/resources/spark-1.6.1-bin-hadoop2.6/bin/spark-submit --class univ.bigdata.course.MainRunner --master yarn --deploy-mode cluster --executor-memory 1G --num-executors 3 /home/vagrant/final-project/target/final-project-1.0-SNAPSHOT.jar commands test_commands_hadoop_2.txt
+
+// large file
+~/final-project/resources/spark-1.6.1-bin-hadoop2.6/bin/spark-submit --class univ.bigdata.course.MainRunner --master yarn --deploy-mode cluster --executor-memory 1G --num-executors 3 /home/vagrant/final-project/target/final-project-1.0-SNAPSHOT.jar commands test_commands_hadoop_3.txt
 
 // kill a running spark application (ctrl + c obviously won't work)
  yarn application -kill <app ID>  (example for app ID = application_1465480579805_0005)
@@ -25,6 +30,9 @@ spark-submit \
 // make dirs in hdfs
 hadoop fs -mkdir res
 
-// copy all files that you need from resources
-hadoop fs -put /home/vagrant/final-project/resources/movies-simple.txt res/movies-simple.txt
+#copy files to hdfs
+hadoop fs -mkdir /res &&
+hadoop fs -put /home/vagrant/final-project/resources/movies-simple.txt /res/movies-simple.txt &&
+hadoop fs -put /home/vagrant/final-project/resources/movies-simple2.txt /res/movies-simple2.txt &&
+hadoop fs -put /home/vagrant/final-project/resources/movies-simple3.txt /res/movies-simple3.txt &&
 

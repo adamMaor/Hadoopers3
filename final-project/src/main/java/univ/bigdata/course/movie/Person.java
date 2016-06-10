@@ -1,6 +1,7 @@
 package univ.bigdata.course.movie;
 
 import scala.Serializable;
+import univ.bigdata.course.MovieQueriesProvider;
 
 /**
  * Person class from page rank.
@@ -18,7 +19,7 @@ public class Person implements Comparable<Person>, Serializable {
     public String toString() {
         return "Person{" +
                 "UserId='" + id + '\'' +
-                ", PageRank=" + score +
+                ", PageRank=" + MovieQueriesProvider.roundFiveDecimal(score) +
                 '}';
     }
 

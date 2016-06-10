@@ -8,14 +8,12 @@
 
 package univ.bigdata.course;
 
-import com.google.common.collect.Multimap;
 import univ.bigdata.course.movie.Movie;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Scanner;
 
 public class MainRunner {
@@ -43,7 +41,7 @@ public class MainRunner {
                 break;
             case "pagerank":
                 provider = new MovieQueriesProvider(args[1]);
-                printer = initPrinter("outputfile2");
+                printer = initPrinter("/home/vagrant/final-project/outputfile2.txt");
                 provider.getPageRank().forEach(printer::println);
                 break;
             default:
@@ -92,22 +90,28 @@ public class MainRunner {
                 provider.getTopKMoviesAverage(Integer.valueOf(commandSplitted[1])).forEach(printer::println);
                 break;
             case "movieWithHighestAverage":
-                printer.println("The movie with highest average: " + provider.movieWithHighestAverage());
+                Movie m1 = provider.movieWithHighestAverage();
+                if (m1 != null) {
+                    printer.println("The movie with highest average: " + m1);
+                }
+                else {
+                    printer.println("Error! No movies in DB");
+                }
                 break;
             case "mostReviewedProduct":
                 printer.println("The most reviewed movie product id is " + provider.mostReviewedProduct());
                 break;
             case "reviewCountPerMovieTopKMovies":
-                List<Movie> movies = provider.reviewCountPerMovieTopKMovies(Integer.parseInt(commandSplitted[1]));
-                for (Movie movie : movies) {
-                    printer.println("Movie product id = [" + movie.getProductId()+ "], reviews count [" + (int)movie.getScore() + "].");
-                }
+                provider.reviewCountPerMovieTopKMovies(Integer.parseInt(commandSplitted[1])).forEach(printer::println);
                 break;
             case "mostPopularMovieReviewedByKUsers":
                 Integer numOfUsers = Integer.parseInt(commandSplitted[1]);
-                Movie movie = provider.mostPopularMovieReviewedByKUsers(numOfUsers);
-                if (movie!=null) {
-                    printer.println("Most popular movie with highest average score, reviewed by at least " + numOfUsers + " users " + movie.getProductId());
+                Movie m2 = provider.mostPopularMovieReviewedByKUsers(numOfUsers);
+                if (m2 != null) {
+                    printer.println("Most popular movie with highest average score, reviewed by at least " + numOfUsers + " users " + m2.getProductId());
+                }
+                else {
+                    printer.println("Error! No movies in DB");
                 }
                 break;
             case "moviesReviewWordsCount":
@@ -115,7 +119,7 @@ public class MainRunner {
                 break;
             case "topYMoviesReviewTopXWordsCount":
                 provider.topYMoviesReviewTopXWordsCount(Integer.parseInt(commandSplitted[1]),
-                        Integer.parseInt(commandSplitted[2])).forEach(printer::println);;
+                        Integer.parseInt(commandSplitted[2])).forEach(printer::println);
                 break;
             case "topKHelpfullUsers":
                 provider.topKHelpfullUsers(Integer.parseInt(commandSplitted[1])).forEach(printer::println);
