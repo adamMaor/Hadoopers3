@@ -10,6 +10,7 @@ package univ.bigdata.course;
 
 import scala.Tuple2;
 import univ.bigdata.course.movie.Movie;
+import univ.bigdata.course.movie.MovieCountedReview;
 import univ.bigdata.course.movie.Person;
 
 import java.awt.*;
@@ -82,22 +83,28 @@ public class MainRunner {
                 provider.getTopKMoviesAverage(Integer.valueOf(commandSplitted[1])).forEach(printer::println);
                 break;
             case "movieWithHighestAverage":
-                printer.println("The movie with highest average: " + provider.movieWithHighestAverage());
+                Movie m1 = provider.movieWithHighestAverage();
+                if (m1 != null) {
+                    printer.println("The movie with highest average: " + m1);
+                }
+                else {
+                    printer.println("Error! No movies in DB");
+                }
                 break;
             case "mostReviewedProduct":
                 printer.println("The most reviewed movie product id is " + provider.mostReviewedProduct());
                 break;
             case "reviewCountPerMovieTopKMovies":
-                List<Movie> movies = provider.reviewCountPerMovieTopKMovies(Integer.parseInt(commandSplitted[1]));
-                for (Movie movie : movies) {
-                    printer.println("Movie product id = [" + movie.getProductId()+ "], reviews count [" + (int)movie.getScore() + "].");
-                }
+                provider.reviewCountPerMovieTopKMovies(Integer.parseInt(commandSplitted[1])).forEach(printer::println);
                 break;
             case "mostPopularMovieReviewedByKUsers":
                 Integer numOfUsers = Integer.parseInt(commandSplitted[1]);
-                Movie movie = provider.mostPopularMovieReviewedByKUsers(numOfUsers);
-                if (movie!=null) {
-                    printer.println("Most popular movie with highest average score, reviewed by at least " + numOfUsers + " users " + movie.getProductId());
+                Movie m2 = provider.mostPopularMovieReviewedByKUsers(numOfUsers);
+                if (m2 != null) {
+                    printer.println("Most popular movie with highest average score, reviewed by at least " + numOfUsers + " users " + m2.getProductId());
+                }
+                else {
+                    printer.println("Error! No movies in DB");
                 }
                 break;
             case "moviesReviewWordsCount":

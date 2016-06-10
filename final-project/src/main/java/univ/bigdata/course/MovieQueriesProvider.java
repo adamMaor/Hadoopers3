@@ -18,6 +18,7 @@ import org.apache.spark.SparkConf;
 import univ.bigdata.course.movie.MovieReview;
 import univ.bigdata.course.movie.Person;
 import univ.bigdata.course.movie.WordCount;
+import univ.bigdata.course.movie.MovieCountedReview;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -68,11 +69,16 @@ public class MovieQueriesProvider implements Serializable{
      * @param topK - number of top movies to return
      */
     List<Movie> getTopKMoviesAverage(int topK) {
-        return movieReviews
-                .mapToPair(s-> new Tuple2<>(s.getMovie().getProductId(), new Tuple2<>(s.getMovie().getScore(), 1)))
-                .reduceByKey((a, b)-> new Tuple2<>(a._1 + b._1, a._2 + b._2))
-                .map(s -> new Movie(s._1, roundFiveDecimal(s._2._1 / s._2._2)))
-                .top(getRealTopK(topK, moviesCount()));
+        List<Movie> list = new ArrayList<Movie>();
+        int k = getRealTopK(topK, moviesCount());
+        if ( k > 0) {
+            list =  movieReviews
+                    .mapToPair(s-> new Tuple2<>(s.getMovie().getProductId(), new Tuple2<>(s.getMovie().getScore(), 1)))
+                    .reduceByKey((a, b)-> new Tuple2<>(a._1 + b._1, a._2 + b._2))
+                    .map(s -> new Movie(s._1, roundFiveDecimal(s._2._1 / s._2._2)))
+                    .top(k);
+        }
+        return list;
     }
 
     /**
@@ -83,14 +89,18 @@ public class MovieQueriesProvider implements Serializable{
      * @return - the movies record @{@link Movie}
      */
     Movie movieWithHighestAverage() {
-        return getTopKMoviesAverage(1).get(0);
+        List<Movie> list = getTopKMoviesAverage(1);
+        if (list.size() > 0){
+            return list.get(0);
+        }
+        return null;
     }
 
     /**
      * @return - the product id of most reviewed movie among all movies
      */
     String mostReviewedProduct() {
-        List<Movie> list = reviewCountPerMovieTopKMovies(1);
+        List<MovieCountedReview> list = reviewCountPerMovieTopKMovies(1);
         if (list.isEmpty()){
             return "No Movies Found !!!";
         }
@@ -104,13 +114,18 @@ public class MovieQueriesProvider implements Serializable{
      *
      * @return - returns map with movies product id and the count of over all reviews assigned to it.
      */
-    List<Movie> reviewCountPerMovieTopKMovies(final int topK) {
-        // we will "trick" movie to have the count instead of the score in order to use it's comparator
-        return movieReviews
-                .mapToPair(s -> new Tuple2<>(s.getMovie().getProductId(), 1))
-                .reduceByKey((a, b) -> a + b)
-                .map(s -> new Movie(s._1(), s._2()))
-                .top(getRealTopK(topK, moviesCount()));
+    List<MovieCountedReview> reviewCountPerMovieTopKMovies(final int topK) {
+
+        List<MovieCountedReview> list = new ArrayList<MovieCountedReview>();
+        int k = getRealTopK(topK, moviesCount());
+        if (k > 0) {
+            list = movieReviews
+                    .mapToPair(s -> new Tuple2<>(s.getMovie().getProductId(), 1))
+                    .reduceByKey((a, b) -> a + b)
+                    .map(s -> new MovieCountedReview(s._1(), s._2()))
+                    .top(k);
+        }
+        return list;
     }
 
     /**
@@ -188,8 +203,10 @@ public class MovieQueriesProvider implements Serializable{
      * Total movies count
      */
     long moviesCount() {
-        JavaRDD<String> distinctMovies = movieReviews.map(s->s.getMovie().getProductId()).distinct();
-        return distinctMovies.count();
+        return movieReviews
+                .map(s->s.getMovie().getProductId())
+                .distinct()
+                .count();
     }
 
     List<Person> getPageRank() throws Exception {
@@ -219,7 +236,7 @@ public class MovieQueriesProvider implements Serializable{
      * @param number number to format
      * @return rounded double with 5 decimal points
      */
-    static double roundFiveDecimal(double number) {
+    public static double roundFiveDecimal(double number) {
         return (double)Math.round((number) * 100000d) / 100000d;
     }
 
