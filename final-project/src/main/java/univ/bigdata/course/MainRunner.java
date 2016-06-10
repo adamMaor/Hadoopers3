@@ -8,11 +8,9 @@
 
 package univ.bigdata.course;
 
-import scala.Tuple2;
+import com.google.common.collect.Multimap;
 import univ.bigdata.course.movie.Movie;
-import univ.bigdata.course.movie.Person;
 
-import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
@@ -25,13 +23,15 @@ public class MainRunner {
     public static void main(String[] args) throws Exception {
         MovieQueriesProvider provider;
         PrintStream printer;
+        LinkedList<String> commands;
+        String inputFile, outputFile;
         switch (args[0]) {
             case "commands":
-                LinkedList<String> commands = returnFileLines("/home/vagrant/final-project/resources/" + args[1]);
+                commands = returnFileLines("/home/vagrant/final-project/resources/" + args[1]);
                 // first line is the input file
-                String inputFile = commands.removeFirst();
+                inputFile = commands.removeFirst();
                 // second line is the output file
-                String outputFile = commands.removeFirst();
+                outputFile = commands.removeFirst();
                 provider = new MovieQueriesProvider(inputFile);
                 printer = initPrinter(outputFile);
                 // following lines are the commands.
@@ -48,6 +48,16 @@ public class MainRunner {
                 break;
             default:
                 throw new RuntimeException("command not found " + args[0]);
+            case "recommend":
+                commands = returnFileLines("/home/vagrant/final-project/resources/" + args[1]);
+                // first line is the input file
+                inputFile = commands.removeFirst();
+                // second line is the output file
+                outputFile = commands.removeFirst();
+                provider = new MovieQueriesProvider(inputFile);
+                printer = initPrinter(outputFile);
+                provider.getRecommendations(commands).forEach(printer::println);
+                break;
         }
     }
 
