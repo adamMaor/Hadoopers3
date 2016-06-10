@@ -43,7 +43,7 @@ public class MainRunner {
                 break;
             case "pagerank":
                 provider = new MovieQueriesProvider(args[1]);
-                printer = initPrinter("outputfile2");
+                printer = initPrinter("/home/vagrant/final-project/outputfile2.txt");
                 provider.getPageRank().forEach(printer::println);
                 break;
             default:

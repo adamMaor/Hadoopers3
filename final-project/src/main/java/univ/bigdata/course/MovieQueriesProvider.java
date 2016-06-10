@@ -19,6 +19,7 @@ import univ.bigdata.course.movie.MovieReview;
 import univ.bigdata.course.movie.Person;
 import univ.bigdata.course.movie.WordCount;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -193,14 +194,13 @@ public class MovieQueriesProvider implements Serializable{
 
     List<Person> getPageRank() throws Exception {
         JavaPairRDD<String, String> graph = movieReviews
-                .mapToPair(s->new Tuple2<>(s.getMovie().getProductId(), s.getUserId()));
+                .mapToPair(s->new Tuple2<>(s.getMovie().getProductId(), s.getUserId())).distinct();
         JavaRDD<String> graphCart =
-                graph.cartesian(graph)
-                .filter(s->(s._1._1.equals(s._2._1) && !s._1._2.equals(s._2._2)))
-                .map(s->s._1._2 + " " + s._2._2)
+                graph.join(graph)
+                .filter(s->(!s._2._1.equals(s._2._2)))
+                .map(s->s._2._1 + " " + s._2._2)
                 .distinct();
-
-        return JavaPageRank.pageRank(graphCart, 100);
+        return JavaPageRank.pageRank(graphCart, 50);
     }
 
     /**
