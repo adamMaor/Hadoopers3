@@ -9,5 +9,9 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Maven: org.apache.spark:spark-core_2.10:1.6.1" level="project" />
     <orderEntry type="library" name="Maven: org.apache.spark:spark-launcher_2.10:1.6.1" level="project" />
+    <orderEntry type="library" name="Maven: org.scala-lang:scala-library:2.10.5" level="project" />
+    <orderEntry type="library" name="Maven: commons-beanutils:commons-beanutils:1.7.0" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.spark:spark-mllib_2.10:1.0.0" level="project" />
+    <orderEntry type="library" name="Maven: org.apache.spark:spark-mllib_2.10:1.6.1" level="project" />
   </component>
 </module>

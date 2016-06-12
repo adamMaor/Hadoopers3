@@ -11,23 +11,16 @@ package univ.bigdata.course;
 import org.apache.spark.api.java.JavaPairRDD;
 import scala.Serializable;
 import scala.Tuple2;
-import scala.Tuple3;
 import univ.bigdata.course.movie.*;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.SparkConf;
-import org.apache.spark.mllib.recommendation.ALS;
-import org.apache.spark.mllib.recommendation.MatrixFactorizationModel;
-import org.apache.spark.mllib.recommendation.Rating;
-import static java.lang.Math.toIntExact;
-import static univ.bigdata.course.movie.SerializableComparator.serialize;
 
 import univ.bigdata.course.movie.MovieReview;
 import univ.bigdata.course.movie.Person;
 import univ.bigdata.course.movie.WordCount;
 import univ.bigdata.course.movie.MovieCountedReview;
 
-import java.util.LinkedList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -123,7 +116,7 @@ public class MovieQueriesProvider implements Serializable{
      */
     List<MovieCountedReview> reviewCountPerMovieTopKMovies(final int topK) {
 
-        List<MovieCountedReview> list = new ArrayList<MovieCountedReview>();
+        List<MovieCountedReview> list = new ArrayList<>();
         int k = getRealTopK(topK, moviesCount());
         if (k > 0) {
             list = movieReviews

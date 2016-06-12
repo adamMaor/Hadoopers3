@@ -40,16 +40,6 @@ public class MainRunner {
                     }
                 }
                 break;
-            case "pagerank":
-                provider = new MovieQueriesProvider(args[1]);
-                printer = initPrinter("/home/vagrant/final-project/outputfile2.txt");
-                provider.getPageRank().forEach(printer::println);
-                break;
-            case "map":
-                evaluation = new MovieEvaluationProvider(args[1], args[2]);
-                System.out.println(evaluation.map());
-            default:
-                throw new RuntimeException("command not found " + args[0]);
             case "recommend":
                 commands = returnFileLines("/home/vagrant/final-project/resources/" + args[1]);
                 // first line is the input file
@@ -60,6 +50,17 @@ public class MainRunner {
                 printer = initPrinter(outputFile);
                 evaluation.getRecommendations(commands).forEach(printer::println);
                 break;
+            case "map":
+                evaluation = new MovieEvaluationProvider(args[1], args[2]);
+                System.out.println(evaluation.map());
+                break;
+            case "pagerank":
+                provider = new MovieQueriesProvider(args[1]);
+                printer = initPrinter("/home/vagrant/final-project/outputfile2.txt");
+                provider.getPageRank().forEach(printer::println);
+                break;
+            default:
+                throw new RuntimeException("command not found " + args[0]);
         }
     }
 
