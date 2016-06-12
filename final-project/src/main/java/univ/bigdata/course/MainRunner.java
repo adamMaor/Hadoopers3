@@ -20,6 +20,7 @@ public class MainRunner {
 
     public static void main(String[] args) throws Exception {
         MovieQueriesProvider provider;
+        MovieEvaluationProvider evaluation;
         PrintStream printer;
         LinkedList<String> commands;
         String inputFile, outputFile;
@@ -44,6 +45,9 @@ public class MainRunner {
                 printer = initPrinter("/home/vagrant/final-project/outputfile2.txt");
                 provider.getPageRank().forEach(printer::println);
                 break;
+            case "map":
+                evaluation = new MovieEvaluationProvider(args[1], args[2]);
+                System.out.println(evaluation.map());
             default:
                 throw new RuntimeException("command not found " + args[0]);
             case "recommend":
@@ -52,9 +56,9 @@ public class MainRunner {
                 inputFile = commands.removeFirst();
                 // second line is the output file
                 outputFile = commands.removeFirst();
-                provider = new MovieQueriesProvider(inputFile);
+                evaluation = new MovieEvaluationProvider(inputFile);
                 printer = initPrinter(outputFile);
-                provider.getRecommendations(commands).forEach(printer::println);
+                evaluation.getRecommendations(commands).forEach(printer::println);
                 break;
         }
     }

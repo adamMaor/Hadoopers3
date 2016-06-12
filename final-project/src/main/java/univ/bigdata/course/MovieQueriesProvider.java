@@ -34,7 +34,6 @@ import java.util.List;
 
 
 public class MovieQueriesProvider implements Serializable{
-    public static final int SUGGESTIONS_NUM = 10;
     JavaRDD<MovieReview> movieReviews;
     /**
      * Constructor method
@@ -228,49 +227,6 @@ public class MovieQueriesProvider implements Serializable{
         return JavaPageRank.pageRank(graphCart, 50);
     }
 
-    List<UserRecommendations> getRecommendations(List<String> users) {
-        JavaPairRDD<String, Integer> movies = movieReviews
-                .map(s->s.getMovie().getProductId())
-                .distinct()
-                .zipWithIndex()
-                .mapToPair(s->new Tuple2<>(s._1, toIntExact(s._2)));;
-        JavaPairRDD<String, Integer> reviewers = movieReviews
-                .map(MovieReview::getUserId)
-                .distinct()
-                .zipWithIndex()
-                .mapToPair(s->new Tuple2<>(s._1, toIntExact(s._2)));
-        JavaRDD<Rating> rating = movieReviews
-                // (movieStrId, (movieStrId, userStrId, score))
-                .mapToPair(s->new Tuple2<>(s.getMovie().getProductId(), new Tuple3<>(s.getMovie().getProductId(), s.getUserId(), s.getMovie().getScore())))
-                // (movieStrId, ((movieStrId, userStrId, score), movieIntId))
-                .join(movies)
-                // (userStrId, (movieIntId, userStrId, score))
-                .mapToPair(s->new Tuple2<>(s._2._1._2(), new Tuple3<>(s._2._2, s._2._1._2(), s._2._1._3())))
-                // (userStrId, ((movieIntId, userStrId, score), userIntId))
-                .join(reviewers)
-                // (Rating)
-                .map(s->new Rating(s._2._2, s._2._1._1(), s._2._1._3()));
-        MatrixFactorizationModel model = ALS.train(JavaRDD.toRDD(rating), 10, 10, 0.01);
-        List<Tuple2<String, Integer>> requestedPredictions = reviewers
-                .filter(s -> users.contains(s._1))
-                .collect();
-        List<UserRecommendations> recommendations = new LinkedList<>();
-        for(Tuple2<String, Integer> user : requestedPredictions) {
-            JavaPairRDD<Double, String> ratingForUser = rating
-                    .wrapRDD(model.predict(JavaRDD.toRDD(movies.map(s -> new Tuple2<>(user._2, s._2)))))
-                    .mapToPair(s -> new Tuple2<>(s.product(), s.rating()))
-                    // (productIdInt, (rating, productIdStr))
-                    .join(movies.mapToPair(s -> new Tuple2<>(s._2, s._1)))
-                    .mapToPair(s -> new Tuple2<>(s._2._1, s._2._2));
-            List<Tuple2<Double, String>> userRecommendations = new LinkedList<>();
-            ratingForUser
-                    .takeOrdered(getRealTopK(SUGGESTIONS_NUM, ratingForUser.count()), serialize((o1, o2) -> o1._1.compareTo(o2._1)*-1))
-                    .forEach(userRecommendations::add);
-            recommendations.add(new UserRecommendations(user._1, userRecommendations));
-        }
-        return recommendations;
-    }
-
     /**
      * this service will check for topK if available and return the number
      * we really need to return
@@ -278,7 +234,7 @@ public class MovieQueriesProvider implements Serializable{
      * @param k the top k given
      * @return the biggest possible
      */
-    int getRealTopK(int k, long items){
+    public static int getRealTopK(int k, long items){
         return (int)(k > items ? items : k);
     }
 
