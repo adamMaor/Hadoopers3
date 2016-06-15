@@ -1,6 +1,6 @@
-/home/vagrant/final-project/resources/movies-simple.txt
+/home/vagrant/final-project/resources/movies-simple4.txt
 /home/vagrant/final-project/recommendation_out_test.txt
-AFH8FFF2K9PMR
-A2BQBLCKJHP65G
-A2GGYCLP056Q03
-A3GA09FYFKL4EY
+A1XN17U10CP78X
+ANAYSRE3LX8GZ
+A4F8CJ1L4348V
+A2S9XWBBIG4AS1
