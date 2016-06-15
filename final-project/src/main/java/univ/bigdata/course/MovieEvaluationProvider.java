@@ -20,7 +20,6 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.SparkConf;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -63,7 +62,7 @@ public class MovieEvaluationProvider implements Serializable {
         trainSet = fileLines.map(MovieReview::new);
     }
 
-    void createMapping() {
+    private void createMapping() {
         JavaRDD<MovieReview> set = testSeparationExists ? trainSet.union(testSet) : trainSet;
         movieMapping = set
                 .map(s->s.getMovie().getProductId())
@@ -77,7 +76,7 @@ public class MovieEvaluationProvider implements Serializable {
                 .mapToPair(s->new Tuple2<>(s._1, toIntExact(s._2)));
     }
 
-    MatrixFactorizationModel train(JavaRDD<MovieReview> movieReviews) {
+    private MatrixFactorizationModel train(JavaRDD<MovieReview> movieReviews) {
         JavaRDD<Rating> rating = movieReviews
                 // (movieStrId, (movieStrId, userStrId, score))
                 .mapToPair(s -> new Tuple2<>(s.getMovie().getProductId(), new Tuple3<>(s.getMovie().getProductId(), s.getUserId(), s.getMovie().getScore())))
@@ -92,7 +91,7 @@ public class MovieEvaluationProvider implements Serializable {
         return ALS.train(JavaRDD.toRDD(rating), 10, 10, 0.01);
     }
 
-    List<UserRecommendations> getRecommendations(List<String> users) {
+    public List<UserRecommendations> getRecommendations(List<String> users) {
         MatrixFactorizationModel model = train(trainSet);
         List<Tuple2<String, Integer>> requestedPredictions = userMapping
                 .filter(s -> users.contains(s._1))
@@ -125,7 +124,7 @@ public class MovieEvaluationProvider implements Serializable {
                 .mapToPair(s -> new Tuple2<>(user._2, s._2._2));
     }
 
-    Double map() {
+    public Double map() {
         MatrixFactorizationModel model = train(trainSet);
         JavaPairRDD<Integer, Integer> moviesForTestUsers = testSet
                 .mapToPair(s -> new Tuple2<>(s.getUserId(), null))
@@ -134,12 +133,10 @@ public class MovieEvaluationProvider implements Serializable {
                 .map(s -> s._2._2)
                 .cartesian(movieMapping.map(s -> s._2));
         System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n###" + moviesForTestUsers.count());
-        
 
         return 0.0;
     }
 }
-
 
 //    JavaPairRDD<Object, List<Rating>> trainSetRecommendations = model
 //                .recommendProductsForUsers(Integer.MAX_VALUE).toJavaRDD()

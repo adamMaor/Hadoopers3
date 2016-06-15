@@ -217,7 +217,7 @@ public class MovieQueriesProvider implements Serializable{
                 .filter(s->(!s._2._1.equals(s._2._2)))
                 .map(s->s._2._1 + " " + s._2._2)
                 .distinct();
-        return JavaPageRank.pageRank(graphCart, 50);
+        return JavaPageRank.pageRank(graphCart, 100);
     }
 
     /**
