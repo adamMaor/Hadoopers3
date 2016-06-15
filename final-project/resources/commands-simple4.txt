@@ -1,5 +1,5 @@
-movies-simple4.txt
-queries_out.txt
+/home/vagrant/final-project/resources/movies-simple4.txt
+queries_out_big.txt
 totalMovieAverage B000M5AJQI
 totalMovieAverage B0002IQNAG
 getTopKMoviesAverage 2

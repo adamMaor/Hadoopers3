@@ -89,19 +89,14 @@ public class MainRunner {
                 printer.println("Total average: " + provider.totalMoviesAverageScore());
                 break;
             case "totalMovieAverage":
-                printer.println("Total average for movie '" + commandSplitted[1] + "': " + provider.totalMovieAverage(commandSplitted[1]));
+                printer.println("Movies " + commandSplitted[1] + " average is " + provider.totalMovieAverage(commandSplitted[1]));
                 break;
             case "getTopKMoviesAverage":
                 provider.getTopKMoviesAverage(Integer.valueOf(commandSplitted[1])).forEach(printer::println);
                 break;
             case "movieWithHighestAverage":
                 Movie m1 = provider.movieWithHighestAverage();
-                if (m1 != null) {
-                    printer.println("The movie with highest average: " + m1);
-                }
-                else {
-                    printer.println("Error! No movies in DB");
-                }
+                printer.println("The movie with highest average:  " + (m1 != null ? m1 : ""));
                 break;
             case "mostReviewedProduct":
                 printer.println("The most reviewed movie product id is " + provider.mostReviewedProduct());
@@ -112,12 +107,8 @@ public class MainRunner {
             case "mostPopularMovieReviewedByKUsers":
                 Integer numOfUsers = Integer.parseInt(commandSplitted[1]);
                 Movie m2 = provider.mostPopularMovieReviewedByKUsers(numOfUsers);
-                if (m2 != null) {
-                    printer.println("Most popular movie with highest average score, reviewed by at least " + numOfUsers + " users " + m2.getProductId());
-                }
-                else {
-                    printer.println("Error! No movies in DB");
-                }
+                printer.println("Most popular movie with highest average score, reviewed by at least " + numOfUsers
+                        + " users " + (m2 != null ? m2.getProductId() : ""));
                 break;
             case "moviesReviewWordsCount":
                 provider.moviesReviewWordsCount(Integer.parseInt(commandSplitted[1])).forEach(printer::println);

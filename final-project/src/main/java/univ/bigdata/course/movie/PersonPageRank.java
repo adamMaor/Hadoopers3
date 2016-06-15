@@ -4,32 +4,32 @@ import scala.Serializable;
 import univ.bigdata.course.MovieQueriesProvider;
 
 /**
- * Person class from page rank.
+ * PersonPageRank class from page rank.
  */
-public class Person implements Comparable<Person>, Serializable {
+public class PersonPageRank implements Comparable<PersonPageRank>, Serializable {
     public String id;
     public double score;
 
-    public Person(String id, double score) {
+    public PersonPageRank(String id, double score) {
         this.id = id;
         this.score = score;
     }
 
     @Override
     public String toString() {
-        return "Person{" +
+        return "PersonPageRank{" +
                 "UserId='" + id + '\'' +
                 ", PageRank=" + MovieQueriesProvider.roundFiveDecimal(score) +
                 '}';
     }
 
     @Override
-    public int compareTo(Person person) {
-        if (this.score == person.score){
-            return this.id.compareTo(person.id) * -1;
+    public int compareTo(PersonPageRank personPageRank) {
+        if (this.score == personPageRank.score){
+            return this.id.compareTo(personPageRank.id) * -1;
         }
         else {
-            return this.score > person.score ? 1 : -1;
+            return this.score > personPageRank.score ? 1 : -1;
         }
     }
 
