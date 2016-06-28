@@ -1,0 +1,147 @@
+getTopKMoviesAverage 2
+Movie{productId='ZGQQQVKWDNNME', score=3.06757}
+Movie{productId='OCUZYAISEQSYQ', score=2.71223}
+getTopKMoviesAverage 4
+Movie{productId='ZGQQQVKWDNNME', score=3.06757}
+Movie{productId='OCUZYAISEQSYQ', score=2.71223}
+Movie{productId='ZAOMODTLHMGTT', score=2.68794}
+Movie{productId='EZMCPQZTRGBPB', score=2.67391}
+totalMoviesAverageScore
+Total average: 1.9794
+movieWithHighestAverage
+The movie with highest average:  Movie{productId='ZGQQQVKWDNNME', score=3.06757}
+reviewCountPerMovieTopKMovies 4
+Movie product id = [AGMKVMLCIVMCP], reviews count [149].
+Movie product id = [JGJLWUQMQUSNY], reviews count [148].
+Movie product id = [KBAAFQMACXPTS], reviews count [148].
+Movie product id = [ZGQQQVKWDNNME], reviews count [148].
+mostReviewedProduct
+The most reviewed movie product id is AGMKVMLCIVMCP
+moviesReviewWordsCount 100
+Word = [_], number of occurrences [21407].
+topYMoviesReviewTopXWordsCount 100 100
+Word = [_], number of occurrences [14419].
+topYMoviesReviewTopXWordsCount 100 10
+Word = [_], number of occurrences [14419].
+mostPopularMovieReviewedByKUsers 20
+Most popular movie with highest average score, reviewed by at least 20 users ZGQQQVKWDNNME
+mostPopularMovieReviewedByKUsers 15
+Most popular movie with highest average score, reviewed by at least 15 users ZGQQQVKWDNNME
+mostPopularMovieReviewedByKUsers 10
+Most popular movie with highest average score, reviewed by at least 10 users ZGQQQVKWDNNME
+mostPopularMovieReviewedByKUsers 5
+Most popular movie with highest average score, reviewed by at least 5 users ZGQQQVKWDNNME
+topKHelpfullUsers 10
+User id = [AAZYJIKVQXCQD], helpfulness [0.2].
+User id = [ACSBAMHVTUJKA], helpfulness [0.2].
+User id = [AJMKBPPHUQLLE], helpfulness [0.2].
+User id = [AUOWHFGFMKLQP], helpfulness [0.2].
+User id = [AYFXVIXQOIWDR], helpfulness [0.2].
+User id = [BCKZNOWWEVCXM], helpfulness [0.2].
+User id = [BFSFVQOHRFLFP], helpfulness [0.2].
+User id = [BGGYFDUOCRRVK], helpfulness [0.2].
+User id = [BJJETHXVWFLVT], helpfulness [0.2].
+User id = [BMIGZIOZFYVVC], helpfulness [0.2].
+topKHelpfullUsers 100
+User id = [AAZYJIKVQXCQD], helpfulness [0.2].
+User id = [ACSBAMHVTUJKA], helpfulness [0.2].
+User id = [AJMKBPPHUQLLE], helpfulness [0.2].
+User id = [AUOWHFGFMKLQP], helpfulness [0.2].
+User id = [AYFXVIXQOIWDR], helpfulness [0.2].
+User id = [BCKZNOWWEVCXM], helpfulness [0.2].
+User id = [BFSFVQOHRFLFP], helpfulness [0.2].
+User id = [BGGYFDUOCRRVK], helpfulness [0.2].
+User id = [BJJETHXVWFLVT], helpfulness [0.2].
+User id = [BMIGZIOZFYVVC], helpfulness [0.2].
+User id = [BQDAHCQIIUIDF], helpfulness [0.2].
+User id = [BRHWWKOOCEAKC], helpfulness [0.2].
+User id = [BWBBRFEEJYHDT], helpfulness [0.2].
+User id = [CBWTSXTCKXTCN], helpfulness [0.2].
+User id = [CHSHETURJMFJA], helpfulness [0.2].
+User id = [CRZYQFGNLWUGZ], helpfulness [0.2].
+User id = [DEAUJOKBYLHAH], helpfulness [0.2].
+User id = [DEGKWFPXVYYWZ], helpfulness [0.2].
+User id = [DKHFNPWFRHIYA], helpfulness [0.2].
+User id = [DOFUCWAFFNHXS], helpfulness [0.2].
+User id = [DTNADWFRIOZEC], helpfulness [0.2].
+User id = [DWCIRDHCCISFV], helpfulness [0.2].
+User id = [DXBSMSHRJDKXF], helpfulness [0.2].
+User id = [DXVLCXEUEICUK], helpfulness [0.2].
+User id = [EJXXHQPTBYLVU], helpfulness [0.2].
+User id = [ENHUQQAAUBJIH], helpfulness [0.2].
+User id = [EUNBKFOXKWIWD], helpfulness [0.2].
+User id = [EYDEWGPMKDLUV], helpfulness [0.2].
+User id = [FEMNHPIBHMSXI], helpfulness [0.2].
+User id = [FHYESFQZHBJLJ], helpfulness [0.2].
+User id = [FJWHAAGNWNNDW], helpfulness [0.2].
+User id = [FKBQDBMFYDBUG], helpfulness [0.2].
+User id = [FOJBCGZILZSXX], helpfulness [0.2].
+User id = [FPPSBLACEEGDM], helpfulness [0.2].
+User id = [FUMPCZHURZMSG], helpfulness [0.2].
+User id = [FXSHMNMPEHXEU], helpfulness [0.2].
+User id = [GATTWWNSWRUTX], helpfulness [0.2].
+User id = [GESEJQIGBHCSJ], helpfulness [0.2].
+User id = [GIUGWQANEEBXD], helpfulness [0.2].
+User id = [GKRYFSOFGLPHQ], helpfulness [0.2].
+User id = [GMEOMTASNKNSJ], helpfulness [0.2].
+User id = [GPPOTLGJMPXAL], helpfulness [0.2].
+User id = [GVIJQGQVQTTPZ], helpfulness [0.2].
+User id = [GYJFCNHVEPUEN], helpfulness [0.2].
+User id = [HGJZGYOWWDNKB], helpfulness [0.2].
+User id = [HGZHRUSISHJNQ], helpfulness [0.2].
+User id = [HOLIAXPZPZSMQ], helpfulness [0.2].
+User id = [HQBIRLVSWPQYK], helpfulness [0.2].
+User id = [HUWAGYTXGAUJY], helpfulness [0.2].
+User id = [HWICSZIWKTUTE], helpfulness [0.2].
+User id = [HXHLWBRXTKIUO], helpfulness [0.2].
+User id = [IBKNFWEPDJFGM], helpfulness [0.2].
+User id = [IKPWFVWHYWWYF], helpfulness [0.2].
+User id = [ILIBZUPVFFFMP], helpfulness [0.2].
+User id = [IMHACMUXALJYD], helpfulness [0.2].
+User id = [IQGDEVBXVWNNQ], helpfulness [0.2].
+User id = [IWLRJNBXEWKKE], helpfulness [0.2].
+User id = [IYOBLQTUYZDEE], helpfulness [0.2].
+User id = [JDZUYCZVSRSBO], helpfulness [0.2].
+User id = [JSPVXJYKBBUEP], helpfulness [0.2].
+User id = [JUKZTZIEZXZJU], helpfulness [0.2].
+User id = [KADCFUIBXTMPT], helpfulness [0.2].
+User id = [KCVXWCFPYKNMP], helpfulness [0.2].
+User id = [KJCUCEWZAFDGF], helpfulness [0.2].
+User id = [KKVDOQCTPDEMU], helpfulness [0.2].
+User id = [KPWCNLEIMDHOO], helpfulness [0.2].
+User id = [KUIVQQPELDNIA], helpfulness [0.2].
+User id = [KXEEWFXHEALTC], helpfulness [0.2].
+User id = [KXRGLYCEKWSTU], helpfulness [0.2].
+User id = [LCTKLCDCARCTA], helpfulness [0.2].
+User id = [LFAMGJCEEXLZN], helpfulness [0.2].
+User id = [LJFEUWTPPMFRC], helpfulness [0.2].
+User id = [LWYNWKEAQASMO], helpfulness [0.2].
+User id = [MAGMKQYEPPTNF], helpfulness [0.2].
+User id = [MAVOYIYGJKLQF], helpfulness [0.2].
+User id = [MCXODCAIJJALM], helpfulness [0.2].
+User id = [MMLMEZEUECBQJ], helpfulness [0.2].
+User id = [MORRQMEXPJROH], helpfulness [0.2].
+User id = [MZUMLVNDXSGLL], helpfulness [0.2].
+User id = [NBRCFAMGHXPJR], helpfulness [0.2].
+User id = [NBUZQVQUSSELI], helpfulness [0.2].
+User id = [NEEKMWZMPWVSN], helpfulness [0.2].
+User id = [NHIHEQWIWPYVJ], helpfulness [0.2].
+User id = [NPPEWIOHWOYBE], helpfulness [0.2].
+User id = [NRIPNXVBKAIUP], helpfulness [0.2].
+User id = [NRWGZDNAXJIBV], helpfulness [0.2].
+User id = [NSHKUTHDHPHOU], helpfulness [0.2].
+User id = [NVLNAADIKFEDW], helpfulness [0.2].
+User id = [NZXOAWRBGUHEL], helpfulness [0.2].
+User id = [OELCVXIDYIPST], helpfulness [0.2].
+User id = [OHKNTCPPMGIUW], helpfulness [0.2].
+User id = [OSMPHYFXQIJCY], helpfulness [0.2].
+User id = [OSYYTOLHEVXER], helpfulness [0.2].
+User id = [OYLDIRJJWVOJU], helpfulness [0.2].
+User id = [PDHCSQHDBOFFB], helpfulness [0.2].
+User id = [PQUTIYMIJNYAD], helpfulness [0.2].
+User id = [PQVWTRVNJUDTQ], helpfulness [0.2].
+User id = [PYDLHPULXNCCY], helpfulness [0.2].
+User id = [QHXWDVIPNGEII], helpfulness [0.2].
+User id = [QISEASIUJMZWD], helpfulness [0.2].
+moviesCount
+Total number of distinct movies reviewed [150].

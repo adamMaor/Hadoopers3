@@ -1,0 +1,5 @@
+movies-simple.txt
+recommendation_out.txt
+A39IIHQF18YGZA
+A3BUI7OGMGOYZC
+A2D8CUJPOSRPNA
