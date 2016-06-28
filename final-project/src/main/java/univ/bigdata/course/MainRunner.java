@@ -10,9 +10,7 @@ package univ.bigdata.course;
 
 import univ.bigdata.course.movie.Movie;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintStream;
+import java.io.*;
 import java.util.LinkedList;
 import java.util.Scanner;
 
@@ -26,7 +24,7 @@ public class MainRunner {
         String inputFile, outputFile;
         switch (args[0]) {
             case "commands":
-                commands = returnFileLines("/home/vagrant/final-project/resources/" + args[1]);
+                commands = returnFileLines(args[1]);
                 // first line is the input file
                 inputFile = commands.removeFirst();
                 // second line is the output file
@@ -41,7 +39,7 @@ public class MainRunner {
                 }
                 break;
             case "recommend":
-                commands = returnFileLines("/home/vagrant/final-project/resources/" + args[1]);
+                commands = returnFileLines(args[1]);
                 // first line is the input file
                 inputFile = commands.removeFirst();
                 // second line is the output file
@@ -56,7 +54,7 @@ public class MainRunner {
                 break;
             case "pagerank":
                 provider = new MovieQueriesProvider(args[1]);
-                printer = initPrinter("/home/vagrant/final-project/outputfile2.txt");
+                printer = initPrinter("");
                 provider.getPageRank().forEach(printer::println);
                 break;
             default:
@@ -137,9 +135,16 @@ public class MainRunner {
     private static PrintStream initPrinter(String outputFile) {
         PrintStream printer;
         try {
-            printer = new PrintStream(outputFile);
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException("Output file open error");
+            if (outputFile.isEmpty())
+            {
+                printer = new PrintStream(new FileOutputStream(FileDescriptor.out));
+            }
+            else
+            {
+                printer = new PrintStream(outputFile);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Cannot open printer to std::out");
         }
         return printer;
     }
