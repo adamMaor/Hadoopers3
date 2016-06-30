@@ -29,7 +29,7 @@ public class UserRecommendations implements Serializable {
     public String toString(){
         String retStr =  "Recommendations for " + userId + ":\n";
         for(int i = 1; i <= movieRecommendations.size(); i++) {
-           retStr += i + ". " + movieRecommendations.get(i-1)._2 + "   |   Score:" + movieRecommendations.get(i-1)._1 + "\n";
+           retStr += i + ". " + movieRecommendations.get(i-1)._2 + "\n";
         }
         return retStr;
     }

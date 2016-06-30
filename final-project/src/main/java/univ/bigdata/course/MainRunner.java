@@ -47,11 +47,13 @@ public class MainRunner {
                 outputFile = commands.removeFirst();
                 evaluation = new MovieEvaluationProvider(inputFile);
                 printer = initPrinter(outputFile);
-                evaluation.getRecommendations(commands).forEach(printer::println);
+                evaluation.getRecommendations(commands).forEach(s->printer.println(s
+                        + "======================================"));
                 break;
             case "map":
+                printer = initPrinter("");
                 evaluation = new MovieEvaluationProvider(args[1], args[2]);
-                System.out.println(evaluation.map());
+                printer.println("Map score: " + evaluation.map());
                 break;
             case "pagerank":
                 provider = new MovieQueriesProvider(args[1]);
