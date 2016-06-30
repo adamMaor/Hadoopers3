@@ -13,6 +13,9 @@ import scala.Tuple2;
 
 import java.util.List;
 
+/**
+ * a Class to print out User Recommendations
+ */
 public class UserRecommendations implements Serializable {
     public String userId;
     public List<Tuple2<Double, String>> movieRecommendations;

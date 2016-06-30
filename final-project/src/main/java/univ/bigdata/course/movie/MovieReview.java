@@ -9,7 +9,6 @@
 package univ.bigdata.course.movie;
 
 import scala.Serializable;
-
 import java.util.Date;
 
 public class MovieReview implements Serializable {

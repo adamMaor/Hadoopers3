@@ -22,6 +22,7 @@ public class MainRunner {
         PrintStream printer;
         LinkedList<String> commands;
         String inputFile, outputFile;
+        // check the arg[0] and act accordingly
         switch (args[0]) {
             case "commands":
                 commands = returnFileLines(args[1]);

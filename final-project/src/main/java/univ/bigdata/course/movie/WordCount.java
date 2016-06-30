@@ -10,6 +10,9 @@ package univ.bigdata.course.movie;
 
 import scala.Serializable;
 
+/**
+ * a Class to compare and print Word Counts
+ */
 public class WordCount implements Comparable<WordCount>, Serializable {
     public String word;
     public Integer count;
