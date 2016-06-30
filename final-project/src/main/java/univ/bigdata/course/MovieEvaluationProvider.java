@@ -9,6 +9,7 @@
 package univ.bigdata.course;
 
 import org.apache.spark.api.java.JavaPairRDD;
+import org.apache.spark.api.java.function.Function;
 import org.apache.spark.mllib.recommendation.ALS;
 import org.apache.spark.mllib.recommendation.MatrixFactorizationModel;
 import org.apache.spark.mllib.recommendation.Rating;
@@ -51,7 +52,7 @@ public class MovieEvaluationProvider implements Serializable {
         this(trainFile);
         testSeparationExists = true;
         JavaRDD<String> fileLines = sc.textFile(testFile);
-        testSet = fileLines.map(MovieReview::new).filter(s -> s.getMovie().getScore() >= 3);
+        testSet = fileLines.map(MovieReview::new);
         createMapping();
     }
 
@@ -67,13 +68,17 @@ public class MovieEvaluationProvider implements Serializable {
         movieMapping = set
                 .map(s->s.getMovie().getProductId())
                 .distinct()
+                .mapToPair(s->new Tuple2<>(s, s))
+                .sortByKey()
                 .zipWithIndex()
-                .mapToPair(s->new Tuple2<>(s._1, toIntExact(s._2)));
+                .mapToPair(s->new Tuple2<>(s._1._1, toIntExact(s._2)));
         userMapping = set
                 .map(MovieReview::getUserId)
                 .distinct()
+                .mapToPair(s->new Tuple2<>(s, s))
+                .sortByKey()
                 .zipWithIndex()
-                .mapToPair(s->new Tuple2<>(s._1, toIntExact(s._2)));
+                .mapToPair(s->new Tuple2<>(s._1._1, toIntExact(s._2)));
     }
 
     private MatrixFactorizationModel train(JavaRDD<MovieReview> movieReviews) {
@@ -98,7 +103,8 @@ public class MovieEvaluationProvider implements Serializable {
                 .collect();
         List<UserRecommendations> recommendations = new LinkedList<>();
         for(Tuple2<String, Integer> user : requestedPredictions) {
-            JavaPairRDD<Integer, Integer> relevantMoviesToRecommend = getRelevantMoviesForRecommend(user);
+            JavaPairRDD<Integer, Integer> relevantMoviesToRecommend = getRelevantMoviesForRecommend(user, trainSet);
+//            System.out.print("user: " + user._1 + " " + getRelevantMoviesForRecommend(user, trainSet).collect() + "\n");
             // get RDD of movie and it's recommendations score for a specific user
             JavaPairRDD<Double, String> ratingForUser = model
                     .predict(relevantMoviesToRecommend)
@@ -115,30 +121,37 @@ public class MovieEvaluationProvider implements Serializable {
         return recommendations;
     }
 
-    private JavaPairRDD<Integer, Integer> getRelevantMoviesForRecommend(Tuple2<String, Integer> user) {
-        return trainSet
-                .filter(s -> !s.getUserId().equals(user._1))
+    /** function to get the movies a user hasn't yet seen for recommendations */
+    private JavaPairRDD<Integer, Integer> getRelevantMoviesForRecommend(Tuple2<String, Integer> user, JavaRDD<MovieReview> set) {
+        JavaPairRDD<String, Boolean> moviesCurrentUserSaw = set
+                // RDD of (movie, current user saw movie) pairs
+                .mapToPair(s -> new Tuple2<>(s.getMovie().getProductId(), s.getUserId().equals(user._1)))
+                .reduceByKey((a, b) -> a | b);
+        return set
                 .mapToPair(s -> new Tuple2<>(s.getMovie().getProductId(), null))
                 .distinct()
+                // (movie, (null, currentUserSawBool))
+                .join(moviesCurrentUserSaw)
+                // keep only movies current user hasn't seen
+                .filter(s->!s._2._2)
+                .mapToPair(s->new Tuple2<>(s._1, null))
                 .join(movieMapping)
                 .mapToPair(s -> new Tuple2<>(user._2, s._2._2));
     }
 
     public Double map() {
         MatrixFactorizationModel model = train(trainSet);
-        JavaPairRDD<Integer, Integer> moviesForTestUsers = testSet
-                .mapToPair(s -> new Tuple2<>(s.getUserId(), null))
-                .distinct()
-                .join(userMapping)
-                .map(s -> s._2._2)
-                .cartesian(movieMapping.map(s -> s._2));
-        System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n###" + moviesForTestUsers.count());
-
+        // All users that exists in test set indexes
+//        JavaPairRDD<String, Integer> testUsers = userMapping
+//                .filter(s -> !(testSet.filter(review -> review.getUserId().equals(s._1)).isEmpty()));
+//        System.out.println(testUsers.collect());
+//        testUsers.foreach(s-> {
+//            JavaPairRDD<Integer, Integer> predictions = getRelevantMoviesForRecommend(s, testSet);
+//        });
         return 0.0;
     }
 }
 
 //    JavaPairRDD<Object, List<Rating>> trainSetRecommendations = model
-//                .recommendProductsForUsers(Integer.MAX_VALUE).toJavaRDD()
+//                .recommendProductsForUsers(100).toJavaRDD()
 //                .mapToPair(s->new Tuple2<>(s._1, Arrays.asList(s._2)));
-
