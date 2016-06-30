@@ -9,7 +9,6 @@
 package univ.bigdata.course;
 
 import org.apache.spark.api.java.JavaPairRDD;
-import org.apache.spark.api.java.function.Function;
 import org.apache.spark.mllib.recommendation.ALS;
 import org.apache.spark.mllib.recommendation.MatrixFactorizationModel;
 import org.apache.spark.mllib.recommendation.Rating;
@@ -32,27 +31,25 @@ import static univ.bigdata.course.MovieQueriesProvider.getRealTopK;
  * Evaluation Object for producing recommendations and Mean Average Precision Calculations.
  */
 public class MovieEvaluationProvider implements Serializable {
-    public static final int SUGGESTIONS_NUM = 10;
+    public static final int RECOMMEND_SUGGESTIONS_NUM = 10;
+    public static final int MAP_NUMBER_OF_USERS_TO_COLLECT_THAT_CAN_FIT_IN_RAM = 10000;
+    public static final int MAP_NUMBER_OF_RECOMMENDATIONS_PER_USER = 100;
 
     JavaRDD<MovieReview> trainSet;
     JavaRDD<MovieReview> testSet;
     JavaSparkContext sc;
     JavaPairRDD<String, Integer> movieMapping;
     JavaPairRDD<String, Integer> userMapping;
-    boolean testSeparationExists;
 
     MovieEvaluationProvider(String trainFile) {
         createSparkContx(trainFile);
-        testSeparationExists = false;
         createMapping();
     }
 
     MovieEvaluationProvider(String trainFile, String testFile) {
         this(trainFile);
-        testSeparationExists = true;
         JavaRDD<String> fileLines = sc.textFile(testFile);
         testSet = fileLines.map(MovieReview::new);
-        createMapping();
     }
 
     private void createSparkContx(String trainFile) {
@@ -61,9 +58,8 @@ public class MovieEvaluationProvider implements Serializable {
         JavaRDD<String> fileLines = sc.textFile(trainFile);
         trainSet = fileLines.map(MovieReview::new);
     }
-
+    /** create mapping of user and movie strings to Integers */
     private void createMapping() {
-//        JavaRDD<MovieReview> set = testSeparationExists ? trainSet.union(testSet) : trainSet;
         movieMapping = trainSet
                 .map(s->s.getMovie().getProductId())
                 .distinct()
@@ -105,7 +101,6 @@ public class MovieEvaluationProvider implements Serializable {
         List<UserRecommendations> recommendations = new LinkedList<>();
         for(Tuple2<String, Integer> user : requestedPredictions) {
             JavaPairRDD<Integer, Integer> relevantMoviesToRecommend = getRelevantMoviesForRecommend(user, trainSet);
-//            System.out.print("user: " + user._1 + " " + getRelevantMoviesForRecommend(user, trainSet).collect() + "\n");
             // get RDD of movie and it's recommendations score for a specific user
             JavaPairRDD<Double, String> ratingForUser = model
                     .predict(relevantMoviesToRecommend)
@@ -115,7 +110,7 @@ public class MovieEvaluationProvider implements Serializable {
                     .mapToPair(s -> new Tuple2<>(s._2._1, s._2._2));
             List<Tuple2<Double, String>> userRecommendations = new LinkedList<>();
             ratingForUser
-                    .takeOrdered(getRealTopK(SUGGESTIONS_NUM, ratingForUser.count()), serialize((o1, o2) -> o1._1.compareTo(o2._1)*-1))
+                    .takeOrdered(getRealTopK(RECOMMEND_SUGGESTIONS_NUM, ratingForUser.count()), serialize((o1, o2) -> o1._1.compareTo(o2._1)*-1))
                     .forEach(userRecommendations::add);
             recommendations.add(new UserRecommendations(user._1, userRecommendations));
         }
@@ -146,23 +141,28 @@ public class MovieEvaluationProvider implements Serializable {
         JavaRDD<Integer> testUsers = userMapping
                 .join(testSet.mapToPair(s -> new Tuple2<>(s.getUserId(), null)).distinct())
                 .map(s -> s._2._1);
-        List<Integer> testUsersArr = testUsers.collect();
         double counter = 0, sum = 0;
-        for (Integer user : testUsersArr) {
-            List<Rating> predictions = Arrays.asList(model.recommendProducts(user, 50000));
-            if (predictions.size() != 0) {
-                sum += mapValueForUser(predictions, user);
-                counter++;
+        while (!testUsers.isEmpty()){
+            // we take a certain number of users each time in order to not bring all the users at once
+            List<Integer> testUsersArr = testUsers.take(MAP_NUMBER_OF_USERS_TO_COLLECT_THAT_CAN_FIT_IN_RAM);
+            for (Integer user : testUsersArr) {
+                List<Rating> predictions = Arrays.asList(model.recommendProducts(user, MAP_NUMBER_OF_RECOMMENDATIONS_PER_USER));
+                if (predictions.size() != 0) {
+                    sum += mapValueForUser(predictions, user);
+                    counter++;
+                }
             }
+            // subtract the users we worked on from users RDD
+            testUsers = testUsers.subtract(sc.parallelize(testUsersArr));
         }
-        System.out.println("num of users :" + testUsersArr.size());
-        System.out.println("sum :" + sum + " counter: " + counter);
-        return sum/(counter != 0 ? counter : 1);
+        // mean of all map calculation on all users
+        return sum / (counter != 0 ? counter : 1);
     }
 
+    /** return MAP for user - mean of precisions */
     double mapValueForUser(List<Rating> predictions, Integer user) {
         String userStringId = userMapping.filter(s -> s._2.equals(user)).collect().get(0)._1;
-        // List of tuples (movieIntId, rank)
+        // List of (movieIntId, rank)
         List<Tuple2<Integer, Integer>> movieRankings = new ArrayList<>();
         for (int i = 0; i < predictions.size(); i++){
             movieRankings.add(new Tuple2<>(predictions.get(i).product(), i));
@@ -173,22 +173,26 @@ public class MovieEvaluationProvider implements Serializable {
                 .mapToPair(s -> new Tuple2<>(s.getMovie().getProductId(), null))
                 .join(movieMapping)
                 .mapToPair(s -> new Tuple2<>(s._2._2, null));
-        long maxHitRecommendationsForUser = moviesInTestThatAlsoAppearInTrainThatUserLiked.count();
         List<Integer> sortedRankingListOfHits = sc
                 .parallelizePairs(movieRankings)
+                // after the join only the movies that were recommended and the user liked (hits) will be left in the RDD.
                 .join(moviesInTestThatAlsoAppearInTrainThatUserLiked)
-                // javaRDD of rankings
+                // javaPairRDD of rankings (rank2, rank1 , ..)
                 .mapToPair(s -> new Tuple2<>(s._2._1, null))
+                // sort the rakings (rank1, rank2, rank3 , ... , rank-n)
                 .sortByKey()
+                // remove the null (temporary parameter to use sortByKey - java api limitation)
                 .map(s -> s._1)
                 .collect();
+        // we will divide the precision sum by this number since this is the amount of hits per user that should have
+        // been if we were to recommend on all the movies, but recommendations after 100 add very little to map and
+        // are of no important significance.
+        long maxHitRecommendationsForUser = moviesInTestThatAlsoAppearInTrainThatUserLiked.count();
         double map = 0;
-        System.out.println("\n\n" + movieRankings + "\n");
-        System.out.println(sortedRankingListOfHits);
         for (int i = 0; i < sortedRankingListOfHits.size(); i++) {
             map += (i+1)/(double)(sortedRankingListOfHits.get(i)+1);
-            System.out.println("map: " + map + " rank: " + (i+1) + " divide: " + (sortedRankingListOfHits.get(i)+1));
         }
+        // return mean of precisions
         return map / maxHitRecommendationsForUser;
     }
 }
