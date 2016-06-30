@@ -153,6 +153,10 @@ public class MovieEvaluationProvider implements Serializable {
             List<Integer> testUsersArr = testUsers.take(MAP_NUMBER_OF_USERS_TO_COLLECT_THAT_CAN_FIT_IN_RAM);
             for (Integer user : testUsersArr) {
                 double predictions = mapValueForUser(model, user);
+                // if there was an error and this user needs to be disregarded.
+                if (predictions < 0) {
+                    continue;
+                }
                 sum += predictions;
                 counter++;
             }
@@ -186,7 +190,7 @@ public class MovieEvaluationProvider implements Serializable {
                 .join(moviesInTestThatAlsoAppearInTrainThatUserLiked)
                 // javaPairRDD of rankings (rank2, rank1 , ..)
                 .mapToPair(s -> new Tuple2<>(s._2._1, null))
-                // sort the rakings (rank1, rank2, rank3 , ... , rank-n)
+                // sort the rankings (rank1, rank2, rank3 , ... , rank-n)
                 .sortByKey()
                 // remove the null (temporary parameter to use sortByKey - java api limitation)
                 .map(s -> s._1)
@@ -195,6 +199,10 @@ public class MovieEvaluationProvider implements Serializable {
         // been if we were to recommend on all the movies, but recommendations after 100 add very little to map and
         // are of no important significance.
         long maxHitRecommendationsForUser = moviesInTestThatAlsoAppearInTrainThatUserLiked.count();
+        // if there cannot be a hit for a certain user, we want to disregard this user since he doesn't provide any information to MAP.
+        if (maxHitRecommendationsForUser == 0){
+            return -1;
+        }
         double map = 0;
         for (int i = 0; i < sortedRankingListOfHits.size(); i++) {
             map += (i+1)/(double)(sortedRankingListOfHits.get(i)+1);
