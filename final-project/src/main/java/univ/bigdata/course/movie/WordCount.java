@@ -1,7 +1,18 @@
+/**
+ * Submitters information - Hadoopers team:
+ * Vadim Khakham 	vadim.khakham@gmail.com	311890156
+ * Michel Guralnik mikijoy@gmail.com 	306555822
+ * Gilad Eini 	giladeini@gmail.com	034744920
+ * Adam Maor 	maorcpa.adam@gmail.com	036930501
+ */
+
 package univ.bigdata.course.movie;
 
 import scala.Serializable;
 
+/**
+ * a Class to compare and print Word Counts
+ */
 public class WordCount implements Comparable<WordCount>, Serializable {
     public String word;
     public Integer count;

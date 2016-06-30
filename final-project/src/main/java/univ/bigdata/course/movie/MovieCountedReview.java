@@ -5,10 +5,15 @@
  * Gilad Eini 	giladeini@gmail.com	034744920
  * Adam Maor 	maorcpa.adam@gmail.com	036930501
  */
+
 package univ.bigdata.course.movie;
 
 import scala.Serializable;
 
+/**
+ *  this class is the same as Movie but keeps a review count instead of score.
+ *  we made this for code readability
+ */
 public class MovieCountedReview implements Comparable<MovieCountedReview>, Serializable {
     private String productId;
 

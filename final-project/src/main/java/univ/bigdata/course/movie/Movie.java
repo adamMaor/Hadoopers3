@@ -5,6 +5,7 @@
  * Gilad Eini 	giladeini@gmail.com	034744920
  * Adam Maor 	maorcpa.adam@gmail.com	036930501
  */
+
 package univ.bigdata.course.movie;
 
 import scala.Serializable;

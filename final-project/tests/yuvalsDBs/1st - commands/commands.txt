@@ -1,5 +1,5 @@
-10MB.txt
-queries_out-10MB.txt
+<DB NAME>
+queries_out-<DB NAME>.txt
 getTopKMoviesAverage 2
 getTopKMoviesAverage 4
 totalMoviesAverageScore
