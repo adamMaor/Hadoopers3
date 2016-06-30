@@ -100,21 +100,27 @@ public class MovieEvaluationProvider implements Serializable {
                 .collect();
         List<UserRecommendations> recommendations = new LinkedList<>();
         for(Tuple2<String, Integer> user : requestedPredictions) {
-            JavaPairRDD<Integer, Integer> relevantMoviesToRecommend = getRelevantMoviesForRecommend(user, trainSet);
-            // get RDD of movie and it's recommendations score for a specific user
-            JavaPairRDD<Double, String> ratingForUser = model
-                    .predict(relevantMoviesToRecommend)
-                    .mapToPair(s -> new Tuple2<>(s.product(), s.rating()))
-                    // (productIdInt, (rating, productIdStr))
-                    .join(movieMapping.mapToPair(s -> new Tuple2<>(s._2, s._1)))
-                    .mapToPair(s -> new Tuple2<>(s._2._1, s._2._2));
-            List<Tuple2<Double, String>> userRecommendations = new LinkedList<>();
-            ratingForUser
-                    .takeOrdered(getRealTopK(RECOMMEND_SUGGESTIONS_NUM, ratingForUser.count()), serialize((o1, o2) -> o1._1.compareTo(o2._1)*-1))
-                    .forEach(userRecommendations::add);
+            List<Tuple2<Double, String>> userRecommendations = getRecommendationsForUser(model, user, RECOMMEND_SUGGESTIONS_NUM);
             recommendations.add(new UserRecommendations(user._1, userRecommendations));
         }
         return recommendations;
+    }
+
+    /** get a list of top recommendations for user of movies he hasn't yet seen */
+    private List<Tuple2<Double, String>> getRecommendationsForUser(MatrixFactorizationModel model, Tuple2<String, Integer> user, int numberOfRecommendations) {
+        JavaPairRDD<Integer, Integer> relevantMoviesToRecommend = getRelevantMoviesForRecommend(user, trainSet);
+        // get RDD of movie and it's recommendations score for a specific user
+        JavaPairRDD<Double, String> ratingForUser = model
+                .predict(relevantMoviesToRecommend)
+                .mapToPair(s -> new Tuple2<>(s.product(), s.rating()))
+                // (productIdInt, (rating, productIdStr))
+                .join(movieMapping.mapToPair(s -> new Tuple2<>(s._2, s._1)))
+                .mapToPair(s -> new Tuple2<>(s._2._1, s._2._2));
+        List<Tuple2<Double, String>> userRecommendations = new LinkedList<>();
+        ratingForUser
+                .takeOrdered(getRealTopK(numberOfRecommendations, ratingForUser.count()), serialize((o1, o2) -> o1._1.compareTo(o2._1)*-1))
+                .forEach(userRecommendations::add);
+        return userRecommendations;
     }
 
     /** function to get the (user, movie) pairs for all movies a user hasn't seen yet */
@@ -146,11 +152,9 @@ public class MovieEvaluationProvider implements Serializable {
             // we take a certain number of users each time in order to not bring all the users at once
             List<Integer> testUsersArr = testUsers.take(MAP_NUMBER_OF_USERS_TO_COLLECT_THAT_CAN_FIT_IN_RAM);
             for (Integer user : testUsersArr) {
-                List<Rating> predictions = Arrays.asList(model.recommendProducts(user, MAP_NUMBER_OF_RECOMMENDATIONS_PER_USER));
-                if (predictions.size() != 0) {
-                    sum += mapValueForUser(predictions, user);
-                    counter++;
-                }
+                double predictions = mapValueForUser(model, user);
+                sum += predictions;
+                counter++;
             }
             // subtract the users we worked on from users RDD
             testUsers = testUsers.subtract(sc.parallelize(testUsersArr));
@@ -160,21 +164,24 @@ public class MovieEvaluationProvider implements Serializable {
     }
 
     /** return MAP for user - mean of precisions */
-    double mapValueForUser(List<Rating> predictions, Integer user) {
+    double mapValueForUser(MatrixFactorizationModel model, Integer user) {
         String userStringId = userMapping.filter(s -> s._2.equals(user)).collect().get(0)._1;
+        List<Tuple2<Double,String>> predictions =
+                getRecommendationsForUser(model, new Tuple2<>(userStringId, user), MAP_NUMBER_OF_RECOMMENDATIONS_PER_USER);
         // List of (movieIntId, rank)
-        List<Tuple2<Integer, Integer>> movieRankings = new ArrayList<>();
+        List<Tuple2<String, Integer>> movieRankings = new ArrayList<>();
         for (int i = 0; i < predictions.size(); i++){
-            movieRankings.add(new Tuple2<>(predictions.get(i).product(), i));
+            movieRankings.add(new Tuple2<>(predictions.get(i)._2, i));
         }
-        JavaPairRDD<Integer, Object> moviesInTestThatAlsoAppearInTrainThatUserLiked = testSet
+        JavaPairRDD<String, Object> moviesInTestThatAlsoAppearInTrainThatUserLiked = testSet
                 // keep all the movies that test users liked
                 .filter(s -> s.getMovie().getScore() >= 3 && userStringId.equals(s.getUserId()))
-                .mapToPair(s -> new Tuple2<>(s.getMovie().getProductId(), null))
-                .join(movieMapping)
-                .mapToPair(s -> new Tuple2<>(s._2._2, null));
+                .mapToPair(s -> new Tuple2<>(s.getMovie().getProductId(), null));
+//                .join(movieMapping)
+//                .mapToPair(s -> new Tuple2<>(s._2._2, null));
         List<Integer> sortedRankingListOfHits = sc
                 .parallelizePairs(movieRankings)
+//                .mapToPair(s->new Tuple2<>(s._2, s._1))
                 // after the join only the movies that were recommended and the user liked (hits) will be left in the RDD.
                 .join(moviesInTestThatAlsoAppearInTrainThatUserLiked)
                 // javaPairRDD of rankings (rank2, rank1 , ..)
